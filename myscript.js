@@ -13,20 +13,6 @@ function parsePolygon(polygon){
     } return result;
 }
 
-function getXY(lat, long){
-    let screenX = ((long + 180) * (mapWidth / 360));
-    let screenY = (((lat * -1) + 90) * (mapHeight / 180));
-    return {"long": screenX, "lat": screenY};
-}
-
-function turnToPixels(polygon){
-    let result = [];
-    for (let element of polygon){
-        result.push(getXY(element["lat"], element["long"]))
-    }
-    return result;
-}
-
 function getMaxes(points){
     let latMax = d3.max(points, function(d) { return d.lat; });
     let longMax = d3.max(points, function(d) { return d.long; });
@@ -55,7 +41,6 @@ function getAllMins(myData){
     return {"long": d3.min(result, function(d) { return d.long; }), "lat": d3.min(result, function(d) { return d.lat; })};
 }
 
-
 function clicked(d) {
     if (active.node() === this) return reset();
     active.classed("active", false);
@@ -64,19 +49,19 @@ function clicked(d) {
     var element = active.node();
     // use the native SVG interface to get the bounding box
 
-    var bbox = element.getBBox(),
+    let bbox = element.getBBox();
+    let
         dx = bbox.width,
         dy = bbox.height,
-        x = bbox.x + bbox.width/2,
-        y = bbox.y + bbox.height/2,
+        x = (bbox.x+(bbox.x+bbox.width)) / 2,
+        y = (bbox.y+(bbox.y+bbox.height)) / 2,
         scale = .9 / Math.max(dx / mapWidth, dy / mapHeight),
-        translate = [mapWidth/ 2 - scale * x, mapHeight / 2 - scale * y];
-        console.log(x, y);
+        translate = [mapWidth/ 2 - x, mapHeight/ 2 - y];
     d3.select("svg")
         .transition()
         .duration(750)
-        .style("stroke-width", 1.5 / scale + "px")
-        .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+        .style("stroke-width", 0.5 / scale + "px")
+        .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
 }
 
 function reset() {
@@ -85,10 +70,9 @@ function reset() {
 
     d3.select("svg").transition()
         .duration(750)
-        .style("stroke-width", "1.5px")
+        .style("stroke-width", "2px")
         .attr("transform", "");
 }
-
 
 let myData ={"Polygons": []};
 
@@ -96,11 +80,8 @@ for (let polygon of raw_polygons_district){
     myData.Polygons.push({"points": parsePolygon(polygon)});
 }
 
-
 let maxes = getAllMaxes(myData);
 let mins = getAllMins(myData);
-
-
 
 let scaleX = d3.scaleLinear()
     .domain([mins["long"], maxes["long"]])
@@ -109,7 +90,6 @@ let scaleX = d3.scaleLinear()
 let scaleY = d3.scaleLinear()
     .domain([mins["lat"], maxes["lat"]])
     .range([mapHeight,0]);
-
 
 let color = d3.scaleOrdinal(d3.schemeCategory10);
 
