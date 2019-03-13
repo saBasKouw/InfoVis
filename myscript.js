@@ -75,7 +75,7 @@ function reset() {
     d3.select(parent)
         .transition()
         .duration(50)
-        .style("opacity", 1);
+        .style("opacity", 0.7);
 
     for (let hood of child){
 
@@ -124,7 +124,7 @@ function othersBack(){
         d3.select("#"+poly.district)
             .transition()
             .duration(400)
-            .style("opacity", 1)
+            .style("opacity", 0.7)
     }
 }
 
@@ -177,7 +177,6 @@ function clicked(d) {
 
 
 function drawHoodPolygons(d){
-    let color = d3.scaleOrdinal(d3.schemeCategory10);
     vis.selectAll("svg")
         .data(d.neighbourhoods)
         .enter().append("polygon")
@@ -186,27 +185,32 @@ function drawHoodPolygons(d){
             return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
         .attr("stroke", "white")
         .attr("stroke-width", 0.7)
-        .attr("fill", function(d,i){return color(i);})
-        // .on("mouseover", function(d) {
-        //     d3.select(this)
-        //         .transition()
-        //         .duration(50)
-        //         .style("opacity", .5)
-        // })
-        // .on("mouseout", function(d) {
-        //     d3.select(this)
-        //         .transition()
-        //         .duration(600)
-        //         .style("opacity", 1)
-        //
-        // })
+        .attr("opacity", 0.7)
+        .attr("fill", "blue")
+        .on("mouseover", function(d) {
+            if(level === "district"){
+                d3.select(this)
+                    .transition()
+                    .duration(50)
+                    .style("opacity", 1);
+            }
+        })
+
+
+        .on("mouseout", function(d) {
+            if(level === "district") {
+                d3.select(this)
+                    .transition()
+                    .duration(50)
+                    .style("opacity", 0.7);
+            }
+        })
         .on("click", clicked);
 
 
 }
 
 function drawDistrictPolygons(data){
-    let color = d3.scaleOrdinal(d3.schemeCategory10);
     vis.selectAll("svg")
         .data(data)
         .enter().append("polygon")
@@ -215,20 +219,25 @@ function drawDistrictPolygons(data){
             return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
         .attr("stroke", "white")
         .attr("stroke-width", 0.7)
-        .attr("fill", function(d,i){return color(i);})
-        // .on("mouseover", function(d) {
-        //     d3.select(this)
-        //         .transition()
-        //         .duration(50)
-        //         .style("opacity", .5)
-        // })
-        // .on("mouseout", function(d) {
-        //     d3.select(this)
-        //         .transition()
-        //         .duration(600)
-        //         .style("opacity", 1)
-        //
-        // })
+        .attr("opacity", 0.7)
+        .attr("fill", "blue")
+        .on("mouseover", function(d) {
+            if(level === "city"){
+                d3.select(this)
+                    .transition()
+                    .duration(50)
+                    .style("opacity", 1);
+            }
+
+        })
+        .on("mouseout", function(d) {
+            if(level === "city") {
+                d3.select(this)
+                    .transition()
+                    .duration(50)
+                    .style("opacity", 0.7);
+            }
+        })
         .on("click", clicked);
 }
 
