@@ -12,7 +12,7 @@ let level = "city";
 let parent;
 let child;
 
-let currentOpacity;
+
 
 
 function parsePolygon(polygon){
@@ -78,7 +78,6 @@ function reset() {
         .style("opacity", 0.7);
 
     for (let hood of child){
-
         d3.select("#"+hood.neighbourhood)
             .transition()
             .duration(400)
@@ -116,7 +115,6 @@ function othersGone(d){
             .duration(400)
             .style("opacity", 1)
     }
-
 }
 
 function othersBack(){
@@ -128,9 +126,7 @@ function othersBack(){
     }
 }
 
-
 function clicked(d) {
-
     if(!(level === "district" && whatIsClicked(d) === "district") &&
         !(level === "neighbourhood" && whatIsClicked(d) === "district")){
         //Zooms in on center of polygon
@@ -145,9 +141,6 @@ function clicked(d) {
                     .duration(50)
                     .style("opacity", 0);
                 drawHoodPolygons(d);
-
-            } else if(whatIsClicked(d) === "neighbourhood"){
-
             }
         }
 
@@ -155,7 +148,6 @@ function clicked(d) {
         active.classed("active", false);
         active = d3.select(this).classed("active", true);
         let element = active.node();
-
 
         let bbox = element.getBBox();
         let dx = bbox.width,
@@ -195,8 +187,6 @@ function drawHoodPolygons(d){
                     .style("opacity", 1);
             }
         })
-
-
         .on("mouseout", function(d) {
             if(level === "district") {
                 d3.select(this)
