@@ -1,56 +1,21 @@
 var currentdata = []
-var current_district = ""
-$(function(){
-	load_csv("./polygons_neighborhood_districs.csv");
-	//load_csv("./data.csv");
-});
+var current_district = "";
+// $(function(){
+// 	load_csv("./polygons_neighborhood_districs.csv");
+// 	//load_csv("./data.csv");
+// });
 
+// function load_csv(filename) {
+//     d3.csv(filename).then(function(data) {
+//         return data;
+//     })
+// }
 
-$("#all_district").click(function() {
-	$("#data").text(JSON.stringify(get_all_by_district(currentdata)))
-});
-
-$("#all_neighbourhood").click(function() {
-	$("#data").text(JSON.stringify(get_all_by_neighbourhood(currentdata)))
-})
-
-$("#district").click(function() {
-	var input = $("#input_d").val()
-	var found = get_for_district(input,currentdata)
-	$("#data").text(JSON.stringify(found))
-	current_district = input
-});
-
-$("#neighbourhood").click(function() {
-	var input = $("#input_n").val()
-	var found = get_for_neighbourhood(input,currentdata)
-	$("#data").text(JSON.stringify(found))
-});
-
-$("#columns").click(function() {
-	$("#data").text("")
-	var columns = get_columns(currentdata)
-	for(var column in columns) {
-		$("body").append("<input type='checkbox' name='"+columns[column]+"'>"+columns[column]+"<br>")
-	}
-})
-
-$("#percentage").click(function() {
-	var columns = []
-	$('input:checkbox:checked').each(function () {
-    	columns.push($(this).attr("name"))
-	});
-	$("#data").text(JSON.stringify(get_percentages_for_columns(columns,currentdata).map(function(d) {return [d.column,d.percentage]})))
-})
-
-
-function load_csv(filename) {
-	d3.csv(filename).then(function(data) {
-		//get_percentages_for_columns(",",data)
-		currentdata = data
-		get_neighbourhood_polygons_for_district("Jordaan",data)
-	})
-}
+// function load_csv(filename) {
+// 	d3.csv(filename).then(function(data) {
+// 		currentdata = data;
+// 	})
+// }
 
 function get_columns(data) {
 	return d3.keys(data[0])
