@@ -8,8 +8,9 @@ let vis;
 
 let scaleX;
 let scaleY;
-let button = true;
+let level = "city";
 let parent;
+let child;
 
 function parsePolygon(polygon){
     polygon = polygon.replace("POLYGON((", "");
@@ -57,27 +58,32 @@ function whatIsClicked(d){
     let keys = Object.keys(d);
 
     if (keys.indexOf("district") >=0){
-        // console.log("d");
-        // button = false;
-
-        // console.log("#"+ d.district);
-        // console.log(vis.select("#"+ d.district));
-        // console.log(d);
-        return "district level";
-    } else if (keys.indexOf("neighbourhood") >=0 && button){
-        // console.log("n");
-        button = false;
-
-        // if (button){
-        //     vis.selectAll("#the_SVG_ID").remove();
-        // }
-        // button = true;
-        return "neighbourhood level";
+        level = "district";
+        return "district";
+    } else if (keys.indexOf("neighbourhood") >=0){
+        level = "neighbourhood";
+        return "neighbourhood";
     }
 }
 function reset() {
     active.classed("active", false);
     active = d3.select(null);
+
+
+    d3.select(parent)
+        .transition()
+        .duration(50)
+        .style("opacity", 1);
+
+    for (let hood of child){
+
+        d3.select("#"+hood.neighbourhood)
+            .transition()
+            .duration(400)
+            .style("opacity", 0)
+            .remove();
+    }
+
 
     d3.select("svg").transition()
         .duration(750)
@@ -86,57 +92,35 @@ function reset() {
 }
 
 
+
 function clicked(d) {
-    console.log(d3.select("#"+d.district));
-    d3.select(this)
-        .transition()
-        .duration(50)
-        .style("opacity", 0);
 
-    // console.log(d);
-        // .transition()
-        // .duration(50)
-        // .style("opacity", 0);
-// .select("#"+d.district)
-    // console.log(d3.select(this).attr('id'));
-    if (whatIsClicked(d) === "district level"){
+    console.log(d);
+    console.log(level, whatIsClicked(d));
 
+    //Zooms in on center of polygon
+    if (active.node() === this){
+        level = "city";
+        return reset();
+    } else {
+        if (whatIsClicked(d) === "district"){
+            child = d.neighbourhoods;
+            parent = "#"+d.district;
+            d3.select("#"+d.district)
+                .transition()
+                .duration(50)
+                .style("opacity", 0);
+            drawHoodPolygons(d);
+        } else if(whatIsClicked(d) === "neighbourhood"){
 
-        let color = d3.scaleOrdinal(d3.schemeCategory10);
-        vis.selectAll("svg")
-            .data(d.neighbourhoods)
-            .enter().append("polygon")
-            .attr("id", function(d) { return d.neighbourhood;})
-            .attr("points", function(d) {
-                return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
-            .attr("stroke", "white")
-            .attr("stroke-width", 1)
-            .attr("fill", function(d,i){return color(i);})
-            .on("mouseover", function(d) {
-                d3.select(this)
-                    .transition()
-                    .duration(50)
-                    .style("opacity", .5)
-            })
-            .on("mouseout", function(d) {
-                d3.select(this)
-                    .transition()
-                    .duration(600)
-                    .style("opacity", 1)
-
-            })
-            .on("click", clicked);
+        }
 
 
-    } else if(whatIsClicked(d) === "neighbourhood level"){
-        // vis.selectAll("#the_SVG_ID").remove();
-        // console.log("under construction");
+
+        // console.log(d);
     }
 
 
-
-    //Zooms in on center of polygon
-    if (active.node() === this) return reset();
     active.classed("active", false);
     active = d3.select(this).classed("active", true);
     let element = active.node();
@@ -157,49 +141,39 @@ function clicked(d) {
 }
 
 
+function drawHoodPolygons(d){
+    let color = d3.scaleOrdinal(d3.schemeCategory10);
+    vis.selectAll("svg")
+        .data(d.neighbourhoods)
+        .enter().append("polygon")
+        .attr("id", function(d) { return d.neighbourhood;})
+        .attr("points", function(d) {
+            return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("fill", function(d,i){return color(i);})
+        // .on("mouseover", function(d) {
+        //     d3.select(this)
+        //         .transition()
+        //         .duration(50)
+        //         .style("opacity", .5)
+        // })
+        // .on("mouseout", function(d) {
+        //     d3.select(this)
+        //         .transition()
+        //         .duration(600)
+        //         .style("opacity", 1)
+        //
+        // })
+        .on("click", clicked);
 
-function createDictionary(data, otherData){
-    let myData = get_all_by_district(data);
-    let myOtherData = get_all_by_neighbourhood(otherData);
-    console.log(myData);
-    let new_data = [];
-    for (let element of myData){
-        let neighbourhoods = [];
-        for (let thing of myOtherData){
-            if (element.values[0].district === thing.values[0].district){
-                neighbourhoods.push({
-                    "neighbourhood": thing.values[0].neighbourhood
-                    , "polygon": parsePolygon(thing.values[0].polygon)});
-            }
-        }
-        new_data.push({"district": element.values[0].district, "polygon": parsePolygon(element.values[0].polygon), "neighbourhoods": neighbourhoods})
-    }
-    return new_data;
+
 }
 
-function genChart(data, otherData){
-
-    let myData =createDictionary(data, otherData);
-    // console.log(myData);
-    maxes = getAllMaxes(myData);
-    mins = getAllMins(myData);
-
-    scaleX = d3.scaleLinear()
-        .domain([mins["long"], maxes["long"]])
-        .range([0, mapWidth]);
-
-    scaleY = d3.scaleLinear()
-        .domain([mins["lat"], maxes["lat"]])
-        .range([mapHeight,0]);
-
+function drawDistrictPolygons(data){
     let color = d3.scaleOrdinal(d3.schemeCategory10);
-
-    vis = d3.select("body").append("svg")
-        .attr("width", mapWidth)
-        .attr("height", mapHeight);
-
     vis.selectAll("svg")
-        .data(myData)
+        .data(data)
         .enter().append("polygon")
         .attr("id", function(d) { return d.district;})
         .attr("points", function(d) {
@@ -223,9 +197,59 @@ function genChart(data, otherData){
         .on("click", clicked);
 }
 
+function replaceChars(name){
+    return name.replace(/ /g, "_").replace("/", "_slash_").
+    replace(/\./g, "_dot_");
+}
+
+
+function createDictionary(data, otherData){
+    let myData = get_all_by_district(data);
+    let myOtherData = get_all_by_neighbourhood(otherData);
+    let new_data = [];
+    for (let element of myData){
+        let neighbourhoods = [];
+        for (let thing of myOtherData){
+            if (element.values[0].district === thing.values[0].district){
+                neighbourhoods.push({
+                    "neighbourhood": replaceChars(thing.values[0].neighbourhood)
+                    , "polygon": parsePolygon(thing.values[0].polygon)});
+            }
+        }
+        new_data.push({"district": replaceChars(element.values[0].district),
+            "polygon": parsePolygon(element.values[0].polygon), "neighbourhoods": neighbourhoods})
+    }
+    return new_data;
+}
+
+
+
+
+
+function initializeChart(data, otherData){
+
+    let myData =createDictionary(data, otherData);
+    maxes = getAllMaxes(myData);
+    mins = getAllMins(myData);
+
+    scaleX = d3.scaleLinear()
+        .domain([mins["long"], maxes["long"]])
+        .range([0, mapWidth]);
+
+    scaleY = d3.scaleLinear()
+        .domain([mins["lat"], maxes["lat"]])
+        .range([mapHeight,0]);
+
+    vis = d3.select("body").append("svg")
+        .attr("width", mapWidth)
+        .attr("height", mapHeight);
+
+    drawDistrictPolygons(myData);
+}
+
 d3.csv("ams_stats_districts.csv").then(function(data) {
     d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
-        genChart(data, other_data);
+        initializeChart(data, other_data);
 
     });
 });
