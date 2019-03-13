@@ -8,7 +8,8 @@ let vis;
 
 let scaleX;
 let scaleY;
-let button = false;
+let button = true;
+let parent;
 
 function parsePolygon(polygon){
     polygon = polygon.replace("POLYGON((", "");
@@ -54,16 +55,23 @@ function getAllMins(myData){
 function whatIsClicked(d){
 
     let keys = Object.keys(d);
+
     if (keys.indexOf("district") >=0){
-        button = false;
-        console.log("d");
+        // console.log("d");
+        // button = false;
+
+        // console.log("#"+ d.district);
+        // console.log(vis.select("#"+ d.district));
+        // console.log(d);
         return "district level";
-    } else if (keys.indexOf("neighbourhood") >=0){
-        console.log("n");
-        if (button){
-            vis.selectAll("#the_SVG_ID").remove();
-        }
-        button = true;
+    } else if (keys.indexOf("neighbourhood") >=0 && button){
+        // console.log("n");
+        button = false;
+
+        // if (button){
+        //     vis.selectAll("#the_SVG_ID").remove();
+        // }
+        // button = true;
         return "neighbourhood level";
     }
 }
@@ -79,13 +87,26 @@ function reset() {
 
 
 function clicked(d) {
+    console.log(d3.select("#"+d.district));
+    d3.select(this)
+        .transition()
+        .duration(50)
+        .style("opacity", 0);
 
+    // console.log(d);
+        // .transition()
+        // .duration(50)
+        // .style("opacity", 0);
+// .select("#"+d.district)
+    // console.log(d3.select(this).attr('id'));
     if (whatIsClicked(d) === "district level"){
+
+
         let color = d3.scaleOrdinal(d3.schemeCategory10);
         vis.selectAll("svg")
             .data(d.neighbourhoods)
             .enter().append("polygon")
-            .attr("id","the_SVG_ID")
+            .attr("id", function(d) { return d.neighbourhood;})
             .attr("points", function(d) {
                 return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
             .attr("stroke", "white")
@@ -105,16 +126,21 @@ function clicked(d) {
 
             })
             .on("click", clicked);
+
+
     } else if(whatIsClicked(d) === "neighbourhood level"){
         // vis.selectAll("#the_SVG_ID").remove();
         // console.log("under construction");
     }
+
+
 
     //Zooms in on center of polygon
     if (active.node() === this) return reset();
     active.classed("active", false);
     active = d3.select(this).classed("active", true);
     let element = active.node();
+
 
     let bbox = element.getBBox();
     let dx = bbox.width,
@@ -135,6 +161,7 @@ function clicked(d) {
 function createDictionary(data, otherData){
     let myData = get_all_by_district(data);
     let myOtherData = get_all_by_neighbourhood(otherData);
+    console.log(myData);
     let new_data = [];
     for (let element of myData){
         let neighbourhoods = [];
@@ -153,7 +180,7 @@ function createDictionary(data, otherData){
 function genChart(data, otherData){
 
     let myData =createDictionary(data, otherData);
-
+    // console.log(myData);
     maxes = getAllMaxes(myData);
     mins = getAllMins(myData);
 
@@ -174,24 +201,25 @@ function genChart(data, otherData){
     vis.selectAll("svg")
         .data(myData)
         .enter().append("polygon")
+        .attr("id", function(d) { return d.district;})
         .attr("points", function(d) {
             return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
         .attr("stroke", "white")
         .attr("stroke-width", 1)
         .attr("fill", function(d,i){return color(i);})
-        .on("mouseover", function(d) {
-            d3.select(this)
-                .transition()
-                .duration(50)
-                .style("opacity", .5)
-        })
-        .on("mouseout", function(d) {
-            d3.select(this)
-                .transition()
-                .duration(600)
-                .style("opacity", 1)
-
-        })
+        // .on("mouseover", function(d) {
+        //     d3.select(this)
+        //         .transition()
+        //         .duration(50)
+        //         .style("opacity", .5)
+        // })
+        // .on("mouseout", function(d) {
+        //     d3.select(this)
+        //         .transition()
+        //         .duration(600)
+        //         .style("opacity", 1)
+        //
+        // })
         .on("click", clicked);
 }
 
