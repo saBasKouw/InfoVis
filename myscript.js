@@ -127,7 +127,6 @@ function othersBack(){
 }
 
 function clicked(d) {
-    console.log(d);
     if(!(level === "district" && whatIsClicked(d) === "district") &&
         !(level === "neighbourhood" && whatIsClicked(d) === "district")){
         //Zooms in on center of polygon
@@ -177,7 +176,7 @@ function drawHoodPolygons(d){
         .attr("points", function(d) {
             return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
         .attr("stroke", "white")
-        .attr("stroke-width", 0.7)
+        .attr("stroke-width", 0.4)
         .attr("opacity", 0.7)
         .attr("fill", "blue")
         .on("mouseover", function(d) {
@@ -237,6 +236,13 @@ function replaceChars(name){
     replace(/\./g, "_dot_");
 }
 
+function noSameName(district_name, hood_name){
+    if(district_name === hood_name){
+        return replaceChars(hood_name+"_street_");
+    }
+    return replaceChars(hood_name);
+}
+
 
 function createDictionary(data, otherData){
     let myData = get_all_by_district(data);
@@ -247,7 +253,7 @@ function createDictionary(data, otherData){
         for (let thing of myOtherData){
             if (element.values[0].district === thing.values[0].district){
                 neighbourhoods.push({
-                    "neighbourhood": replaceChars(thing.values[0].neighbourhood)
+                    "neighbourhood": noSameName(thing.values[0].district, thing.values[0].neighbourhood)
                     , "polygon": parsePolygon(thing.values[0].polygon)});
             }
         }
