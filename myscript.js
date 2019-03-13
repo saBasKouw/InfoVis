@@ -127,6 +127,7 @@ function othersBack(){
 }
 
 function clicked(d) {
+    console.log(d);
     if(!(level === "district" && whatIsClicked(d) === "district") &&
         !(level === "neighbourhood" && whatIsClicked(d) === "district")){
         //Zooms in on center of polygon
