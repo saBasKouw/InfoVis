@@ -133,8 +133,10 @@ function clicked(d) {
         //Zooms in on center of polygon
         if (active.node() === this){
             clear_donut()
+            d3.select("#name").text("");
             return reset();
         } else {
+            var original_name = "";
             if (whatIsClicked(d) === "district"){
                 child = d.neighbourhoods;
                 parent = "#"+d.district;
@@ -143,10 +145,13 @@ function clicked(d) {
                     .duration(50)
                     .style("opacity", 0);
                 drawHoodPolygons(d);
-                showDonutDistrict(replaceCharsBack(d.district))
+                original_name = replaceCharsBack(d.district)
             } else {
-                showDonutDistrict(replaceCharsBack(d.neighbourhood))
+                original_name = replaceCharsBack(d.neighbourhood)
+
             }
+            showDonutDistrict(original_name)
+            d3.select("#name").text(original_name);
         }
 
         othersGone(d);
@@ -168,6 +173,7 @@ function clicked(d) {
 
     }else{
         clear_donut()
+        d3.select("#name").text("");
         return reset();
     }
     level = whatIsClicked(d);

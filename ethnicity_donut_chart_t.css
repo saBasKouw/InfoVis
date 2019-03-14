@@ -38,3 +38,7 @@ polyline{
 #map {
     float: left;
 }
+#name {
+    position: absolute;
+    font-size: 14px;
+}
