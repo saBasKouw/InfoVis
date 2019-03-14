@@ -48,13 +48,17 @@ d3.csv(myData, function (data) {
             console.log("max is " + maxValue);    
  });
 }
+
+function getMaxValueForColumn(data,stat) {
+    var maxValue = d3.max(data,function(d){return data[stat]})
+}
  
     
 // green-red scale (crimes)    
-function getColorScale(maxValue) {
-var color = d3.scaleLinear()
-            .domain([0, maxValue])
-            .range(["green", "red"])
+function getColorScaleCrimes(maxValue) {
+    var color = d3.scaleSequential(d3.interpolateBlues)
+                .domain([0, maxValue])
+    return color
 }
     
 // blue gradient scale (socio-economical stats)    
@@ -69,4 +73,15 @@ function getColorScale(maxValue) {
 var color = d3.scaleLinear()
             .domain([0, maxValue])
             .range(["wheat", "DarkOrange"])
-}    
+} 
+
+var crimestats = []
+var sociostats = []
+function loadStats () {
+    d3.csv("ams_stats_districts.csv").then(function(data) {
+        d3.csv("concat_ams_safety_index_district.csv").then(function(other_data) {
+            initializeChart(data, other_data);
+
+        });
+    });
+}

@@ -8,6 +8,8 @@ let svg;
 let scaleX;
 let scaleY;
 let button = false;
+var d3projection;
+var map;
 
 function parsePolygon(polygon){
     polygon = polygon.replace("POLYGON((", "");
@@ -81,12 +83,12 @@ function clicked(d) {
 
     if (whatIsClicked(d) === "district level"){
         let color = d3.scaleOrdinal(d3.schemeCategory10);
-        vis.selectAll("svg")
+        svg.selectAll("svg")
             .data(d.neighbourhoods)
             .enter().append("polygon")
             .attr("id","the_SVG_ID")
             .attr("points", function(d) {
-                return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
+                return d.polygon.map(function(d) { return d3projection([d.long,d.lat])[0] + "," + d3projection([d.long,d.lat])[1];}).join(" ");})
             .attr("stroke", "white")
             .attr("stroke-width", 1)
             .attr("fill", function(d,i){return color(i);})
@@ -126,6 +128,7 @@ function clicked(d) {
         .transition()
         .duration(750)
         .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
+    map.setZoom(scale)
 
 }
 
@@ -154,11 +157,13 @@ function genChart(data, otherData){
     mapboxgl.accessToken = "pk.eyJ1IjoibWVueTIyIiwiYSI6ImNqdDV3czZnMTAwdDQ0NXFtNnFmYWpta3cifQ.mhbITNq8e2dq1WzKdDqETg"
     var style1 = 'mapbox://styles/meny22/cjt5x58qx1ckg1fqwuiefewht'
     var style2 = "mapbox://styles/meny22/cjt5y536g23b31fparcfxvlrx"
-    var map = new mapboxgl.Map({
+    var style3 = "mapbox://styles/meny22/cjt8liq6t7asj1fmv11njf6pk"
+    map = new mapboxgl.Map({
         container:'map',
-        style: style2,
+        style: style3,
         center:[4.9036,52.3580],
         zoom: 10.5,
+        interactive:false
     })
     map.scrollZoom.disable()
     map.dragPan.disable()
@@ -201,7 +206,7 @@ function genChart(data, otherData){
       return d3projection;
     }
 
-    var d3projection = getD3();
+    d3projection = getD3();
     //let color = d3.scaleOrdinal(d3.schemeCategory10);
 
     svg.append("svg").selectAll("polygon").data(myData)

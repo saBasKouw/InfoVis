@@ -1,6 +1,6 @@
 
 const mapWidth = 960;
-const mapHeight = 500;
+const mapHeight = 580;
 let active = d3.select(null);
 let maxes;
 let mins;
@@ -11,8 +11,8 @@ let scaleY;
 let level = "city";
 let parent;
 let child;
-
-
+let current_index = "population_2017";
+let colorScale;
 
 
 function parsePolygon(polygon){
@@ -129,8 +129,10 @@ function othersBack(){
 function clicked(d) {
     if(!(level === "district" && whatIsClicked(d) === "district") &&
         !(level === "neighbourhood" && whatIsClicked(d) === "district")){
+
         //Zooms in on center of polygon
         if (active.node() === this){
+            clear_donut()
             return reset();
         } else {
             if (whatIsClicked(d) === "district"){
@@ -141,6 +143,9 @@ function clicked(d) {
                     .duration(50)
                     .style("opacity", 0);
                 drawHoodPolygons(d);
+                showDonutDistrict(replaceCharsBack(d.district))
+            } else {
+                showDonutDistrict(replaceCharsBack(d.neighbourhood))
             }
         }
 
@@ -156,12 +161,13 @@ function clicked(d) {
             y = (bbox.y+(bbox.y+bbox.height)) / 2,
             scale = .6 / Math.max(dx / mapWidth, dy / mapHeight),
             translate = [mapWidth/ 2 - x, mapHeight/ 2 - y];
-        d3.select("svg")
+        d3.select("svg.zoomable")
             .transition()
             .duration(750)
             .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
 
     }else{
+        clear_donut()
         return reset();
     }
     level = whatIsClicked(d);
@@ -210,7 +216,7 @@ function drawDistrictPolygons(data){
         .attr("stroke", "white")
         .attr("stroke-width", 0.7)
         .attr("opacity", 0.7)
-        .attr("fill", "blue")
+        .attr("fill", function(d) { return getColorForDistrict(d.district);})
         .on("mouseover", function(d) {
             if(level === "city"){
                 d3.select(this)
@@ -236,13 +242,23 @@ function replaceChars(name){
     replace(/\./g, "_dot_");
 }
 
+// function replaceChars(name){
+//     return name.replace(/ /g, "_").replace("/", "%").
+//     replace(/\./g, "$");
+// }
+
+
+function replaceCharsBack(name){
+    return name.replace(/_slash_/g,"/").replace(/_dot_/g,".").replace(/_/g," ")
+}
+
+
 function noSameName(district_name, hood_name){
     if(district_name === hood_name){
         return replaceChars(hood_name+"_street_");
     }
     return replaceChars(hood_name);
 }
-
 
 function createDictionary(data, otherData){
     let myData = get_all_by_district(data);
@@ -263,15 +279,13 @@ function createDictionary(data, otherData){
     return new_data;
 }
 
-
-
-
-
 function initializeChart(data, otherData){
-
     myData =createDictionary(data, otherData);
+    console.log(myData)
     maxes = getAllMaxes(myData);
     mins = getAllMins(myData);
+
+    initializeColorScales()
 
     scaleX = d3.scaleLinear()
         .domain([mins["long"], maxes["long"]])
@@ -281,17 +295,33 @@ function initializeChart(data, otherData){
         .domain([mins["lat"], maxes["lat"]])
         .range([mapHeight,0]);
 
-    vis = d3.select("body").append("svg")
+    vis = d3.select("#map").append("svg")
         .attr("width", mapWidth)
-        .attr("height", mapHeight);
+        .attr("height", mapHeight)
+        .attr("class","zoomable");
 
     drawDistrictPolygons(myData);
+}
+
+function getColorForDistrict(district) {
+    var district_info = get_for_district(replaceCharsBack(district))
+    if(district_info != undefined) {
+        if(current_index in district_info)
+            return colorScale(district_info[current_index])
+    } else {
+        //console.log(district)
+    }
+}
+
+function initializeColorScales() {
+    var max = get_maxes_for_index()
+    console.log("max: "+max)
+    colorScale = getColorScaleCrimes(max)
 }
 
 d3.csv("ams_stats_districts.csv").then(function(data) {
     d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
         initializeChart(data, other_data);
-
     });
 });
 

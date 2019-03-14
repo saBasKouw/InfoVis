@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://d3js.org/d3.v5.js"></script>
+    <link rel="stylesheet" type="text/css" href="styling.css">
+    <link rel="stylesheet" type="text/css" href="ethnicity_donut_chart_t.css">
 </head>
 <body>
+<script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
 <script src="data_functions/data_handler.js"> </script>
 <script src="myscript.js"> </script>
-<link rel="stylesheet" type="text/css" href="styling.css">
+<script src="colorscaling.js"></script>
+<script src="ethnicity_donut_chart_t.js"></script>
+
  
     
 <div class="dropdown">
@@ -34,8 +39,11 @@
     <a id="potential_labour">Potential labour</a>
     <a id="welfare">People with welfare</a>
     <a id="working">People working</a>  
-  </div>   
-    
+  </div>  
+</div>
+<div id="elements">
+  <div id="map"></div>
+  <div id="chart"></div> 
 </div>
 </body>
 </html>

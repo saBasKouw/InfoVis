@@ -11,11 +11,11 @@ var current_district = "";
 //     })
 // }
 
-// function load_csv(filename) {
-// 	d3.csv(filename).then(function(data) {
-// 		currentdata = data;
-// 	})
-// }
+function load_csv() {
+	d3.csv("ams_stats_districts.csv").then(function(data) {
+		currentdata = data;
+	})
+}
 
 function get_columns(data) {
 	return d3.keys(data[0])
@@ -25,11 +25,17 @@ function get_all_by_district(data) {
 	return d3.nest().key(function(d){return d.district}).entries(data)
 }
 
+function get_maxes_for_index() {
+	console.log(currentdata)
+	return d3.max(currentdata,function(v) {return parseFloat(v.population_2017)})
+}
+
 function get_all_by_neighbourhood(data) {
 	return d3.nest().key(function(d){return d.neighbourhood}).entries(data)
 }
 
-function get_for_district(district,data) {
+function get_for_district(district) {
+	var data = currentdata
 	return data.find(x=>x.district == district)
 }
 
@@ -60,3 +66,5 @@ function get_neighbourhood_polygons_for_district(district,data) {
 	var neighbourhoods = data.filter(x=>x.district == district)
 	return neighbourhoods
 }	
+
+load_csv();
