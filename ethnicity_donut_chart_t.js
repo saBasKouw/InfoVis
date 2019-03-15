@@ -182,8 +182,6 @@ function donutChart() {
                 var data0 = path.data(), // store the current data before updating to the new
                     data1 = pie(new_data);
 
-                console.log(path.data());
-                console.log(pie(new_data));
 
                 // update data attached to the slices, labels, and polylines. the key function assigns the data to
                 // the correct element, rather than in order of how the data appears. This means that if a category
@@ -339,7 +337,7 @@ function donutChart() {
                     // if value is a number, format it as a percentage
                     var value = (!isNaN(parseFloat(data.data[key]))) ? percentFormat(data.data[key]) : data.data[key];
 
-                    console.log(key);
+
 
                     if (key == 'key') var key = 'Ethnicity';
 
@@ -526,8 +524,7 @@ d3.select("#chart").selectAll("*").remove();
 d3.csv('ams_stats_districts.csv').then(function(data) {
 //  if (error) throw error;
 var district_data = {};
-  console.log(district_name);
-  console.log(data);
+
 
 data.forEach(function(d){
   district_data[d["district"]] = []
@@ -575,38 +572,34 @@ data.forEach(function(d){
   district_data[d["district"]].push(other_non_western);
 })
 
-console.log(district_data);
-//console.log(district_data['Haarlemmerbuurt']);
+
+
 
   // change the disctrict here
   var one_district = district_data[district_name];
   if(one_district == undefined)
-    showDonutNeighbourhood(district_name)
-  console.log(district_name);
-  console.log(one_district);
+    showDonutNeighbourhood(district_name);
 
 
    var nested_data = d3.nest()
                      .key(function(d) { return d["Ethnicity"]; })
                      .rollup(function(v) { return d3.sum(v, function(d) { return d["Total"]; }); })
                      .entries(one_district);
-//  console.log(nested_data);
 
   var tots = d3.sum(one_district, function(d) {
       return d["Total"];
     });
 
-  //console.log(tots);
-  //console.log(nested_data.values());
+
 
      var filtered = one_district.filter(function(d) { return d["Ethnicity Subgroup"] !== ""; });
-  //   console.log(filtered);
+
 
      var subgroup_nest = d3.nest()
                        .key(function(d) { return d["Ethnicity Subgroup"]; })
                        .rollup(function(v) { return d3.sum(v, function(d) { return d["Total"]; }); })
                        .entries(filtered);
-  //   console.log(subgroup_nest);
+
 
      var tots_subgroup = d3.sum(subgroup_nest, function(d) {
          return d.value;
@@ -617,13 +610,12 @@ console.log(district_data);
     if (d.key == "Total Non Western") d["subgroups"] = subgroup_nest
     });
 
-    console.log(nested_data);
-  //   console.log(tots_subgroup);
+
 
    subgroup_nest.forEach(function(d) {
                d["Percentage"] = d.value / tots_subgroup;
                });
-//   console.log(subgroup_nest);
+
 
      var chart_area =  d3.select('#chart')
                          .datum(nested_data) // bind data to the div
@@ -631,7 +623,7 @@ console.log(district_data);
      var chart_elements = chart_area.enter()
                        .append("piechart")
                        .merge(chart_area);
-    console.log(donut);
+
      chart_elements
                  .datum(nested_data)
                  .call(donut);
@@ -641,7 +633,7 @@ console.log(district_data);
         .transition().duration(1000)
         .remove();
 
-//   console.log(nested_data);
+
 
        });
      }
@@ -650,8 +642,7 @@ function showDonutNeighbourhood(neighbourhood_name) {
     d3.csv('ams_stats_neighbourhoods.csv').then(function(data) {
     //  if (error) throw error;
     var district_data = {};
-      // console.log(district_name);
-      // console.log(data);
+
 
     data.forEach(function(d){
       district_data[d["neighbourhood"]] = []
@@ -699,8 +690,7 @@ function showDonutNeighbourhood(neighbourhood_name) {
       district_data[d["neighbourhood"]].push(other_non_western);
     })
 
-    console.log(district_data);
-    //console.log(district_data['Haarlemmerbuurt']);
+
 
       // change the disctrict here
       var one_district = district_data[neighbourhood_name];
@@ -708,23 +698,21 @@ function showDonutNeighbourhood(neighbourhood_name) {
                          .key(function(d) { return d["Ethnicity"]; })
                          .rollup(function(v) { return d3.sum(v, function(d) { return d["Total"]; }); })
                          .entries(one_district);
-    //  console.log(nested_data);
+
 
       var tots = d3.sum(one_district, function(d) {
           return d["Total"];
         });
 
-      //console.log(tots);
-      //console.log(nested_data.values());
 
          var filtered = one_district.filter(function(d) { return d["Ethnicity Subgroup"] !== ""; });
-      //   console.log(filtered);
+
 
          var subgroup_nest = d3.nest()
                            .key(function(d) { return d["Ethnicity Subgroup"]; })
                            .rollup(function(v) { return d3.sum(v, function(d) { return d["Total"]; }); })
                            .entries(filtered);
-      //   console.log(subgroup_nest);
+
 
          var tots_subgroup = d3.sum(subgroup_nest, function(d) {
              return d.value;
@@ -735,12 +723,12 @@ function showDonutNeighbourhood(neighbourhood_name) {
         if (d.key == "Total Non Western") d["subgroups"] = subgroup_nest
         });
 
-      //   console.log(tots_subgroup);
+
 
        subgroup_nest.forEach(function(d) {
                    d["Percentage"] = d.value / tots_subgroup;
                    });
-    //   console.log(subgroup_nest);
+
 
          var chart_area =  d3.select('#chart')
                              .datum(nested_data) // bind data to the div
@@ -758,7 +746,7 @@ function showDonutNeighbourhood(neighbourhood_name) {
             .transition().duration(1000)
             .remove();
 
-    //   console.log(nested_data);
+
 
            });
      }

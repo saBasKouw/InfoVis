@@ -13,10 +13,23 @@ let parent;
 let child;
 let current_index = "population_2017";
 let colorScale;
-let toggleValue = false;
+let compareMode = false;
+let clickedPolygons = [];
+
 
 function toggleCompare(){
-    toggleValue = document.getElementById("compareToggle").checked;
+    compareMode = document.getElementById("compareToggle").checked;
+    if (!compareMode){
+        for (let polygon of clickedPolygons){
+            d3.select("#"+polygon)
+                .transition()
+                .duration(50)
+                .style("fill", "blue")
+                .style("opacity", 0.7);
+
+        }
+
+    }
 }
 
 
@@ -132,56 +145,71 @@ function othersBack(){
 }
 
 function clicked(d) {
-    if(!(level === "district" && whatIsClicked(d) === "district") &&
-        !(level === "neighbourhood" && whatIsClicked(d) === "district")){
 
-        //Zooms in on center of polygon
-        if (active.node() === this){
+
+    if (!compareMode){
+        if(!(level === "district" && whatIsClicked(d) === "district") &&
+            !(level === "neighbourhood" && whatIsClicked(d) === "district")){
+
+
+
+            //Zooms in on center of polygon
+            if (active.node() === this){
+                clear_donut();
+                d3.select("#name").text("");
+                return reset();
+            } else {
+                let original_name = "";
+                if (whatIsClicked(d) === "district"){
+                    child = d.neighbourhoods;
+                    parent = "#"+d.district;
+                    d3.select("#"+d.district)
+                        .transition()
+                        .duration(50)
+                        .style("opacity", 0);
+                    drawHoodPolygons(d);
+                    original_name = replaceCharsBack(d.district)
+                } else {
+                    original_name = replaceCharsBack(d.neighbourhood)
+
+                }
+                showDonutDistrict(original_name);
+                d3.select("#name").text(original_name);
+            }
+
+            othersGone(d);
+            active.classed("active", false);
+            active = d3.select(this).classed("active", true);
+            let element = active.node();
+
+            let bbox = element.getBBox();
+            let dx = bbox.width,
+                dy = bbox.height,
+                x = (bbox.x+(bbox.x+bbox.width)) / 2,
+                y = (bbox.y+(bbox.y+bbox.height)) / 2,
+                scale = .6 / Math.max(dx / mapWidth, dy / mapHeight),
+                translate = [mapWidth/ 2 - x, mapHeight/ 2 - y];
+            d3.select("svg.zoomable")
+                .transition()
+                .duration(750)
+                .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
+
+        }else{
             clear_donut();
             d3.select("#name").text("");
             return reset();
-        } else {
-            let original_name = "";
-            if (whatIsClicked(d) === "district"){
-                child = d.neighbourhoods;
-                parent = "#"+d.district;
-                d3.select("#"+d.district)
-                    .transition()
-                    .duration(50)
-                    .style("opacity", 0);
-                drawHoodPolygons(d);
-                original_name = replaceCharsBack(d.district)
-            } else {
-                original_name = replaceCharsBack(d.neighbourhood)
-
-            }
-            showDonutDistrict(original_name);
-            d3.select("#name").text(original_name);
         }
-
-        othersGone(d);
-        active.classed("active", false);
-        active = d3.select(this).classed("active", true);
-        let element = active.node();
-
-        let bbox = element.getBBox();
-        let dx = bbox.width,
-            dy = bbox.height,
-            x = (bbox.x+(bbox.x+bbox.width)) / 2,
-            y = (bbox.y+(bbox.y+bbox.height)) / 2,
-            scale = .6 / Math.max(dx / mapWidth, dy / mapHeight),
-            translate = [mapWidth/ 2 - x, mapHeight/ 2 - y];
-        d3.select("svg.zoomable")
+        level = whatIsClicked(d);
+    } else {
+        clickedPolygons.push(d.district);
+        d3.select("#"+d.district)
             .transition()
-            .duration(750)
-            .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
-
-    }else{
-        clear_donut();
-        d3.select("#name").text("");
-        return reset();
+            .duration(50)
+            .style("fill", "red");
     }
-    level = whatIsClicked(d);
+
+
+
 }
 
 
