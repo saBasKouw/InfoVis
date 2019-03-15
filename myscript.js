@@ -21,14 +21,14 @@ function toggleCompare(){
     compareMode = document.getElementById("compareToggle").checked;
     if (!compareMode){
         for (let polygon of clickedPolygons){
-            d3.select("#"+polygon)
+            d3.select("#"+polygon.area)
                 .transition()
                 .duration(50)
-                .style("fill", "blue")
-                .style("opacity", 0.7);
+                .style("fill", polygon.fill)
+                .style("opacity", polygon.opacity);
 
         }
-
+        clickedPolygons = [];
     }
 }
 
@@ -144,6 +144,26 @@ function othersBack(){
     }
 }
 
+function addToCompare(d){
+    if (level === "city"){
+        clickedPolygons.push({"area": d.district,
+            "fill": d3.select("#"+d.district).attr("fill"),
+            "opacity": d3.select("#"+d.district).attr("fill")});
+        d3.select("#"+d.district)
+            .transition()
+            .duration(50)
+            .style("fill", "red");
+    } else if(level === "district") {
+        clickedPolygons.push({"area": d.neighbourhood,
+            "fill": d3.select("#"+d.neighbourhood).attr("fill"),
+            "opacity": d3.select("#"+d.neighbourhood).attr("fill")});
+        d3.select("#"+d.neighbourhood)
+            .transition()
+            .duration(50)
+            .style("fill", "red");
+    }
+}
+
 function clicked(d) {
 
 
@@ -201,15 +221,8 @@ function clicked(d) {
         }
         level = whatIsClicked(d);
     } else {
-        clickedPolygons.push(d.district);
-        d3.select("#"+d.district)
-            .transition()
-            .duration(50)
-            .style("fill", "red");
+        addToCompare(d);
     }
-
-
-
 }
 
 
