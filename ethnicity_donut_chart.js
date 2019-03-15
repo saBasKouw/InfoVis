@@ -184,9 +184,6 @@ function donutChart() {
                 var data0 = path.data(), // store the current data before updating to the new
                     data1 = pie(new_data);
 
-                console.log(path.data());
-                console.log(pie(new_data));
-
                 // update data attached to the slices, labels, and polylines. the key function assigns the data to
                 // the correct element, rather than in order of how the data appears. This means that if a category
                 // already exists in the chart, it will have its data updated rather than removed and re-added.
@@ -341,7 +338,6 @@ function donutChart() {
                     // if value is a number, format it as a percentage
                     var value = (!isNaN(parseFloat(data.data[key]))) ? percentFormat(data.data[key]) : data.data[key];
 
-                    console.log(key);
 
                     if (key == 'key') var key = 'Ethnicity';
 
@@ -572,7 +568,7 @@ data.forEach(function(d){
   district_data[d["district"]].push(other_non_western);
 })
 
-console.log(district_data['Haarlemmerbuurt']);
+
 
   // change the disctrict here
   one_district = district_data['Haarlemmerbuurt']
@@ -581,23 +577,22 @@ console.log(district_data['Haarlemmerbuurt']);
                      .key(function(d) { return d["Ethnicity"]; })
                      .rollup(function(v) { return d3.sum(v, function(d) { return d["Total"]; }); })
                      .entries(one_district);
-  console.log(nested_data);
+
 
   var tots = d3.sum(one_district, function(d) {
       return d["Total"];
     });
 
-  console.log(tots);
-  console.log(nested_data.values());
+
 
      var filtered = one_district.filter(function(d) { return d["Ethnicity Subgroup"] !== ""; });
-     console.log(filtered);
+
 
      var subgroup_nest = d3.nest()
                        .key(function(d) { return d["Ethnicity Subgroup"]; })
                        .rollup(function(v) { return d3.sum(v, function(d) { return d["Total"]; }); })
                        .entries(filtered);
-     console.log(subgroup_nest);
+
 
      var tots_subgroup = d3.sum(subgroup_nest, function(d) {
          return d.value;
@@ -608,13 +603,11 @@ console.log(district_data['Haarlemmerbuurt']);
     if (d.key == "Total Non Western") d["subgroups"] = subgroup_nest
     });
 
-    console.log(nested_data);
-     console.log(tots_subgroup);
 
    subgroup_nest.forEach(function(d) {
                d["Percentage"] = d.value / tots_subgroup;
                });
-   console.log(subgroup_nest);
+
 
      var chart_area =  d3.select('#chart')
                          .datum(nested_data) // bind data to the div
@@ -631,6 +624,5 @@ console.log(district_data['Haarlemmerbuurt']);
         .transition().duration(1000)
         .remove();
 
-   console.log(nested_data);
 
        });

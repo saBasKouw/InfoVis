@@ -12,7 +12,6 @@ var donut = donutChart()
     .category('key');
 
 function donutChart() {
-    console.log(d3.schemeCategory10)
     var width,
         height,
         margin = {top: 10, right: 10, bottom: 10, left: 10},
@@ -736,7 +735,6 @@ function showDonutNeighbourhood(neighbourhood_name) {
         if (d.key == "Total Non Western") d["subgroups"] = subgroup_nest
         });
 
-        console.log(nested_data);
       //   console.log(tots_subgroup);
 
        subgroup_nest.forEach(function(d) {
@@ -750,7 +748,7 @@ function showDonutNeighbourhood(neighbourhood_name) {
          var chart_elements = chart_area.enter()
                            .append("piechart")
                            .merge(chart_area);
-        console.log(donut);
+
          chart_elements
                      .datum(nested_data)
                      .call(donut);

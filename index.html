@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="ethnicity_donut_chart_t.css">
 </head>
 <body>
+<!--<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>-->
 <script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
 <script src="data_functions/data_handler.js"> </script>
 <script src="myscript.js"> </script>
@@ -41,6 +42,10 @@
     <a id="working">People working</a>  
   </div>  
 </div>
+<label class="switch">
+  <input id="compareToggle" type="checkbox" onclick="toggleCompare()">
+  <span class="slider round"></span>
+</label>
 <h1 id="name"></h1>
 <div id="elements">
   <div id="map"></div>

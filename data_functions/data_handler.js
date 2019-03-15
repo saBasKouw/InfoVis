@@ -26,7 +26,6 @@ function get_all_by_district(data) {
 }
 
 function get_maxes_for_index() {
-	console.log(currentdata)
 	return d3.max(currentdata,function(v) {return parseFloat(v.population_2017)})
 }
 
@@ -45,7 +44,6 @@ function get_for_neighbourhood(neighbourhood,data) {
 
 //TODO: optimize
 function get_percentages_for_columns(column_names,data) {
-	console.log(current_district)
 	var data = get_for_district(current_district,data)
 	var total = 0
 	var percentages = []

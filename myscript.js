@@ -13,6 +13,11 @@ let parent;
 let child;
 let current_index = "population_2017";
 let colorScale;
+let toggleValue = false;
+
+function toggleCompare(){
+    toggleValue = document.getElementById("compareToggle").checked;
+}
 
 
 function parsePolygon(polygon){
@@ -132,11 +137,11 @@ function clicked(d) {
 
         //Zooms in on center of polygon
         if (active.node() === this){
-            clear_donut()
+            clear_donut();
             d3.select("#name").text("");
             return reset();
         } else {
-            var original_name = "";
+            let original_name = "";
             if (whatIsClicked(d) === "district"){
                 child = d.neighbourhoods;
                 parent = "#"+d.district;
@@ -150,7 +155,7 @@ function clicked(d) {
                 original_name = replaceCharsBack(d.neighbourhood)
 
             }
-            showDonutDistrict(original_name)
+            showDonutDistrict(original_name);
             d3.select("#name").text(original_name);
         }
 
@@ -172,7 +177,7 @@ function clicked(d) {
             .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
 
     }else{
-        clear_donut()
+        clear_donut();
         d3.select("#name").text("");
         return reset();
     }
@@ -287,11 +292,11 @@ function createDictionary(data, otherData){
 
 function initializeChart(data, otherData){
     myData =createDictionary(data, otherData);
-    console.log(myData)
+
     maxes = getAllMaxes(myData);
     mins = getAllMins(myData);
 
-    initializeColorScales()
+    initializeColorScales();
 
     scaleX = d3.scaleLinear()
         .domain([mins["long"], maxes["long"]])
@@ -310,7 +315,7 @@ function initializeChart(data, otherData){
 }
 
 function getColorForDistrict(district) {
-    var district_info = get_for_district(replaceCharsBack(district))
+    let district_info = get_for_district(replaceCharsBack(district));
     if(district_info != undefined) {
         if(current_index in district_info)
             return colorScale(district_info[current_index])
@@ -320,8 +325,7 @@ function getColorForDistrict(district) {
 }
 
 function initializeColorScales() {
-    var max = get_maxes_for_index()
-    console.log("max: "+max)
+    let max = get_maxes_for_index();
     colorScale = getColorScaleCrimes(max)
 }
 
