@@ -17,22 +17,6 @@ let compareMode = false;
 let clickedPolygons = [];
 
 
-function toggleCompare(){
-    compareMode = document.getElementById("compareToggle").checked;
-    if (!compareMode){
-        for (let polygon of clickedPolygons){
-            d3.select("#"+polygon.area)
-                .transition()
-                .duration(50)
-                .style("fill", polygon.fill)
-                .style("opacity", polygon.opacity);
-
-        }
-        clickedPolygons = [];
-    }
-}
-
-
 function parsePolygon(polygon){
     polygon = polygon.replace("POLYGON((", "");
     polygon = polygon.replace("))", "");
@@ -141,6 +125,20 @@ function othersBack(){
             .transition()
             .duration(400)
             .style("opacity", 0.7)
+    }
+}
+
+function toggleCompare(){
+    compareMode = document.getElementById("compareToggle").checked;
+    if (!compareMode){
+        for (let polygon of clickedPolygons){
+            d3.select("#"+polygon.area)
+                .transition()
+                .duration(50)
+                .style("fill", polygon.fill)
+                .style("opacity", polygon.opacity);
+        }
+        clickedPolygons = [];
     }
 }
 
