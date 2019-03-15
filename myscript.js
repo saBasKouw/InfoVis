@@ -144,7 +144,15 @@ function othersBack(){
     }
 }
 
-function addToCompare(d){
+function checkDuplicates(d){
+    for(let polygon of clickedPolygons){
+        if(polygon.area === d.district || polygon.area === d.neighbourhood){
+            return true;
+        }
+    } return false;
+}
+
+function addToClicked(d){
     if (level === "city"){
         clickedPolygons.push({"area": d.district,
             "fill": d3.select("#"+d.district).attr("fill"),
@@ -164,8 +172,17 @@ function addToCompare(d){
     }
 }
 
-function clicked(d) {
+function addToCompare(d){
+    if(clickedPolygons.length === 0) {
+        addToClicked(d);
+    } else {
+        if(!checkDuplicates(d)){
+            addToClicked(d);
+        }
+    }
+}
 
+function clicked(d) {
 
     if (!compareMode){
         if(!(level === "district" && whatIsClicked(d) === "district") &&
@@ -293,11 +310,6 @@ function replaceChars(name){
     return name.replace(/ /g, "_").replace("/", "_slash_").
     replace(/\./g, "_dot_");
 }
-
-// function replaceChars(name){
-//     return name.replace(/ /g, "_").replace("/", "%").
-//     replace(/\./g, "$");
-// }
 
 
 function replaceCharsBack(name){
