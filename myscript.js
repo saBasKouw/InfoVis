@@ -135,8 +135,8 @@ function toggleCompare(){
             d3.select("#"+polygon.area)
                 .transition()
                 .duration(50)
-                .style("fill", polygon.fill)
-                .style("opacity", polygon.opacity);
+                .style("stroke", polygon.stroke)
+                .style("stroke-width", polygon.stroke_width);
         }
         clickedPolygons = [];
     }
@@ -153,20 +153,22 @@ function checkDuplicates(d){
 function addToClicked(d){
     if (level === "city"){
         clickedPolygons.push({"area": d.district,
-            "fill": d3.select("#"+d.district).attr("fill"),
-            "opacity": d3.select("#"+d.district).attr("fill")});
+            "stroke": d3.select("#"+d.district).attr("stroke"),
+            "stroke_width": d3.select("#"+d.district).attr("stroke-width")});
         d3.select("#"+d.district)
             .transition()
             .duration(50)
-            .style("fill", "red");
+            .style("stroke", "black")
+            .style("stroke-width", "4");
     } else if(level === "district") {
         clickedPolygons.push({"area": d.neighbourhood,
-            "fill": d3.select("#"+d.neighbourhood).attr("fill"),
-            "opacity": d3.select("#"+d.neighbourhood).attr("fill")});
+            "stroke": d3.select("#"+d.neighbourhood).attr("stroke"),
+            "stroke_width": d3.select("#"+d.neighbourhood).attr("stroke-width")});
         d3.select("#"+d.neighbourhood)
             .transition()
             .duration(50)
-            .style("fill", "red");
+            .style("stroke", "black")
+            .style("stroke-width", "4");
     }
 }
 
