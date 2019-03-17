@@ -151,6 +151,14 @@ function checkDuplicates(d){
 }
 
 function addToClicked(d){
+    if (clickedPolygons.length === 2){
+        d3.select("#"+clickedPolygons[0].area)
+            .transition()
+            .duration(50)
+            .style("stroke", clickedPolygons[0].stroke)
+            .style("stroke-width", clickedPolygons[0].stroke_width);
+        clickedPolygons.shift();
+    }
     if (level === "city"){
         clickedPolygons.push({"area": d.district,
             "stroke": d3.select("#"+d.district).attr("stroke"),
