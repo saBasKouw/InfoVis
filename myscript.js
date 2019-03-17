@@ -12,10 +12,48 @@ let level = "city";
 let parent;
 let child;
 let current_index = "population_2017";
-let colorScale;
+let colorScaleIndex;
 let compareMode = false;
 let clickedPolygons = [];
+let current_data_districts = [];
+let svg;
+let d3projection;
+var map;
 
+function initMap() {
+    mapboxgl.accessToken = "pk.eyJ1IjoibWVueTIyIiwiYSI6ImNqdDV3czZnMTAwdDQ0NXFtNnFmYWpta3cifQ.mhbITNq8e2dq1WzKdDqETg"
+    var style1 = 'mapbox://styles/meny22/cjt5x58qx1ckg1fqwuiefewht'
+    var style2 = "mapbox://styles/meny22/cjt5y536g23b31fparcfxvlrx"
+    var style3 = "mapbox://styles/meny22/cjt8liq6t7asj1fmv11njf6pk"
+    map = new mapboxgl.Map({
+        container:'map',
+        style: style1,
+        center:[4.9036,52.3580],
+        zoom: 10.5,
+        interactive:false
+    })
+    map.scrollZoom.disable()
+    map.dragPan.disable()
+    var container = map.getCanvasContainer()
+    svg = d3.select(container).append("svg")
+        .attr("width", mapWidth)
+        .attr("height", mapHeight)
+        .attr("class","zoomable");
+    getD3()
+}
+
+function getD3() {
+      var bbox = document.body.getBoundingClientRect();
+      var center = map.getCenter();
+      var zoom = map.getZoom();
+      // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
+      var scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
+
+      d3projection = d3.geoMercator()
+        .center([center.lng, center.lat])
+        .translate([bbox.width/2, bbox.height/2])
+        .scale(scale);
+}
 
 function parsePolygon(polygon){
     polygon = polygon.replace("POLYGON((", "");
@@ -238,6 +276,7 @@ function clicked(d) {
                 .transition()
                 .duration(750)
                 .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
+            translateMap(x,y)
 
         }else{
             clear_donut();
@@ -250,17 +289,37 @@ function clicked(d) {
     }
 }
 
+function translateMap(points) {
+    map.flyTo({
+    // These options control the ending camera position: centered at
+    // the target, at zoom level 9, and north up.
+    center: target,
+    zoom: 9,
+    bearing: 0,
+     
+    // These options control the flight curve, making it move
+    // slowly and zoom out almost completely before starting
+    // to pan.
+    speed: 0.2, // make the flying slow
+    curve: 1, // change the speed at which it zooms out
+     
+    // This can be any easing function: it takes a number between
+    // 0 and 1 and returns another number between 0 and 1.
+    easing: function (t) { return t; }
+    });
+}
+
 
 function drawHoodPolygons(d){
-    vis.selectAll("svg")
+    svg.append("svg").selectAll("polygon")
         .data(d.neighbourhoods)
         .enter().append("polygon")
         .attr("id", function(d) { return d.neighbourhood;})
         .attr("points", function(d) {
-            return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
+            return d.polygon.map(function(d) { return d3projection([d.long,d.lat])[0] + "," + d3projection([d.long,d.lat])[1];}).join(" ");})
         .attr("stroke", "white")
         .attr("stroke-width", 0.4)
-        .attr("opacity", 0.7)
+        .attr("opacity", 1)
         .attr("fill", "blue")
         .on("mouseover", function(d) {
             if(level === "district"){
@@ -275,7 +334,7 @@ function drawHoodPolygons(d){
                 d3.select(this)
                     .transition()
                     .duration(50)
-                    .style("opacity", 0.7);
+                    .style("opacity", 1);
             }
         })
         .on("click", clicked);
@@ -284,15 +343,15 @@ function drawHoodPolygons(d){
 }
 
 function drawDistrictPolygons(data){
-    vis.selectAll("svg")
+    svg.append("svg").selectAll("polygon")
         .data(data)
         .enter().append("polygon")
         .attr("id", function(d) { return d.district;})
         .attr("points", function(d) {
-            return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
+            return d.polygon.map(function(d) { return d3projection([d.long,d.lat])[0] + "," + d3projection([d.long,d.lat])[1];}).join(" ");})
         .attr("stroke", "white")
         .attr("stroke-width", 0.7)
-        .attr("opacity", 0.7)
+        .attr("opacity", 1)
         .attr("fill", function(d) { return getColorForDistrict(d.district);})
         .on("mouseover", function(d) {
             if(level === "city"){
@@ -308,7 +367,7 @@ function drawDistrictPolygons(data){
                 d3.select(this)
                     .transition()
                     .duration(50)
-                    .style("opacity", 0.7);
+                    .style("opacity", 1);
             }
         })
         .on("click", clicked);
@@ -352,6 +411,7 @@ function createDictionary(data, otherData){
 }
 
 function initializeChart(data, otherData){
+    initMap()
     myData =createDictionary(data, otherData);
 
     maxes = getAllMaxes(myData);
@@ -367,30 +427,33 @@ function initializeChart(data, otherData){
         .domain([mins["lat"], maxes["lat"]])
         .range([mapHeight,0]);
 
-    vis = d3.select("#map").append("svg")
-        .attr("width", mapWidth)
-        .attr("height", mapHeight)
-        .attr("class","zoomable");
+    // vis = d3.select("#map").append("svg")
+    //     .attr("width", mapWidth)
+    //     .attr("height", mapHeight)
+    //     .attr("class","zoomable");
 
     drawDistrictPolygons(myData);
 }
 
 function getColorForDistrict(district) {
-    let district_info = get_for_district(replaceCharsBack(district));
+    let district_info = get_for_district(current_data_districts,replaceCharsBack(district));
     if(district_info != undefined) {
         if(current_index in district_info)
-            return colorScale(district_info[current_index])
+            return colorScaleIndex(district_info[current_index])
     } else {
         //console.log(district)
     }
 }
 
 function initializeColorScales() {
-    let max = get_maxes_for_index();
-    colorScale = getColorScaleCrimes(max)
+    current_index = "fear_of_crime_2017"
+    let max = get_maxes_for_index(current_data_districts,current_index);
+    console.log("max:" +max)
+    colorScaleIndex = getColorScale(max)
 }
 
-d3.csv("ams_stats_districts.csv").then(function(data) {
+d3.csv("data_merge_only_safety.csv").then(function(data) {
+    current_data_districts = data;
     d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
         initializeChart(data, other_data);
     });

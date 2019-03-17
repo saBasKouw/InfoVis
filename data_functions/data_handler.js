@@ -25,16 +25,15 @@ function get_all_by_district(data) {
 	return d3.nest().key(function(d){return d.district}).entries(data)
 }
 
-function get_maxes_for_index() {
-	return d3.max(currentdata,function(v) {return parseFloat(v.population_2017)})
+function get_maxes_for_index(data,index) {
+	return d3.max(data,function(v) {return parseFloat(v[index])})
 }
 
 function get_all_by_neighbourhood(data) {
 	return d3.nest().key(function(d){return d.neighbourhood}).entries(data)
 }
 
-function get_for_district(district) {
-	var data = currentdata
+function get_for_district(data,district) {
 	return data.find(x=>x.district == district)
 }
 
