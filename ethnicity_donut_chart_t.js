@@ -577,8 +577,10 @@ data.forEach(function(d){
 
   // change the disctrict here
   var one_district = district_data[district_name];
-  if(one_district == undefined)
+  if(one_district == undefined){
     showDonutNeighbourhood(district_name);
+    return;
+  }      
 
 
    var nested_data = d3.nest()
