@@ -13,6 +13,7 @@ let parent;
 let child;
 let current_index = "population_2017";
 let colorScaleIndex;
+let chosenStat;
 let compareMode = false;
 let clickedPolygons = [];
 let current_data_districts = [];
@@ -396,13 +397,26 @@ function createDictionary(data, otherData){
     return new_data;
 }
 
+
+/*$(function(){
+    for(let box of boxes){
+    box.addEventListener("click", function(event){
+        chosenStat = getValue(event);
+    });
+   }
+   });*/
+
+
 function initializeChart(data, otherData){
     myData =createDictionary(data, otherData);
 
     maxes = getAllMaxes(myData);
     mins = getAllMins(myData);
 
-    initializeColorScales();
+
+   
+   initializeColorScales();    
+    
 
     scaleX = d3.scaleLinear()
         .domain([mins["long"], maxes["long"]])
@@ -430,23 +444,49 @@ function getColorForDistrict(district) {
     }
 }
 
+//const boxes = document.getElementsByClassName("box");
+
+
+//add the click listeners
+
+
+
+
 function initializeColorScales() {
-    current_index = "fear_of_crime_2017"
+    current_index = chosenStat;
     let max = get_maxes_for_index(current_data_districts,current_index);
     console.log("max:" +max)
     colorScaleIndex = getColorScale(max)
 }
 
 d3.csv("data_merge_only_safety.csv").then(function(data) {
-    current_data_districts = data;
-    d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
+current_data_districts = data;
+d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
         //initializeChart(data, other_data);
         initMap(data,other_data)
+                    });
+     });
+
+$(function(){
+        for(let box of boxes){
+            box.addEventListener("click", function(event){
+                if (chosenStat != getValue(event)) {
+                chosenStat = getValue(event);
+                
+                
+                d3.csv("data_merge_only_safety.csv").then(function(data) {
+            current_data_districts = data;
+            d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
+        //initializeChart(data, other_data);
+        d3.select("svg").remove();        
+        initMap(data,other_data)
+                    });
+   });
+    
+                }
     });
+}
 });
-
-
-
 
 
 

@@ -56,7 +56,9 @@ function getMaxValueForColumn(data,stat) {
     
 // green-red scale (crimes)    
 function getColorScale(maxValue) {
-    var color = d3.scaleSequential(d3.interpolateBlues)
+    var myArray = [d3.interpolateBlues, d3.interpolateGreens, d3.interpolateOranges, d3.interpolatePurples, d3.interpolateReds, d3.interpolateYlOrBr, d3.interpolateRdPu, d3.interpolatePuRd];
+    var rand = myArray[Math.floor(Math.random() * myArray.length)];
+    var color = d3.scaleSequential(rand)
                 .domain([0, maxValue])
     return color
 }
