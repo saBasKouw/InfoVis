@@ -1,41 +1,65 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <script src="https://d3js.org/d3.v5.js"></script>
-</head>
+<html lang="en">
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
+.w3-bar,h1,button {font-family: "Montserrat", sans-serif}
+.fa-anchor,.fa-coffee {font-size:200px}
+</style>
 <body>
-<script src="data_functions/data_handler.js"> </script>
-<script src="myscript.js"> </script>
-<link rel="stylesheet" type="text/css" href="styling.css">
- 
-    
-<div class="dropdown">
-  <button class="dropbtn">Choose crime stat for map</button>
-  <div class ="dropdown-content">
-    <a id="crime_index_2017t">Crime index</a>
-    <a id="decay_2017">Decay</a>
-    <a id="fear_of_crime_2017">Fear of crime</a>
-    <a id="high_impact_crime_2017">High impact crime</a>
-    <a id="avoidance_2017">Avoidance</a>
-    <a id="high_volume_crime_2017">High volume crime</a>
-    <a id="nuisance_2017">Nuisance</a>
-    <a id="safety_index_2017">Safety index</a>  
-  </div>
+
+
+<!-- Header -->
+<header class="w3-container w3-red w3-center" style="padding:39px 16px">
+  <h1 class="w3-margin w3-jumbo">The link between socio-economical status and crime in Amsterdam</h1>
+  <p class="w3-xlarge"> Nizar Hirzalla, Meny Metekia, Fiorella Wever, Sebastiaan Kouwenhoven, Berk Aydaşgil </p>
+  <a href="index2.html" button class="w3-button w3-black w3-padding-large w3-large w3-margin-top" ahref = index2.html>Start here!</a>
+</header>
+
+<!-- First Grid -->
+<div class="w3-row-padding w3-padding-32 w3-container">
+  <div class="w3-content">
+    <div class="w3-twothird">
+      <h1>The goal</h1>
+      <h5 class="w3-padding-8"></h5>
+
+      <p class="w3-text-grey">The goal of our Information Visualization project is to showcase different socio-economical statistics in relation to crime statistics in Amsterdam. This is meant as an interactive and easy way for showcasing possible correlations between certain socio-economical stats and crime stats using visual interfaces and graphical supplements. 
+
+<p class ="w3-text-grey">The user can gain the information on three levels. On Amsterdam as a whole (layer 1), district level (layer 2) and neighbourhood level (layer 3). This visualization however also gives the user the ability to explore different aspects of these factors to perform analytics and form conclusions for themselves. </p>
     </div>
-<div class="dropdown2">    
-  <button class="dropbtn2">Choose socio-economical stat for map</button>
-  <div class ="dropdown-content2">
-    <a id="migrants">Migrants</a>
-    <a id ="single_household">Single parent households</a>
-    <a id="deaths">Deaths</a>
-    <a id="moving_away">People moving away</a>
-    <a id="housing_stock">Housing stock</a>
-    <a id="potential_labour">Potential labour</a>
-    <a id="welfare">People with welfare</a>
-    <a id="working">People working</a>  
-  </div>   
-    
+
+    <div class="w3-third w3-center">
+       <img src="amsterdam-png-5.png" alt="Logo of Amsterdam" style="width:340px;height:279px;">
+<!--       <i class="fa fa-anchor w3-padding-64 w3-text-red"></i>-->
+    </div>
+  </div>
 </div>
+
+<!-- Second Grid -->
+<div class="w3-row-padding w3-light-grey w3-padding-32 w3-container">
+  <div class="w3-content">
+    <div class="w3-third w3-center">
+      <h12> <i> Example of specifying the area</i> </h12>
+      <img src="instructie.gif" alt="instruction_clickable" style="width:292px;height:209px;">
+    </div>
+
+    <div class="w3-twothird">
+      <h1>How to use the map</h1>
+      <h5 class="w3-padding-8"></h5>
+
+      <p class="w3-text-grey">The map has clickable polygons on the first two levels to 'zoom in'. The user can click on a polygon on the Amsterdam map to zoom into a district, or click on a polygon on the zoomed-in district to further zoom in to a neighbourhooud.  These polygons are outlined so it's easily visible to see what the polygon represents (district or neighbourhood). The map is colored accordingly to the chosen crime-associated statistic, which the user can select at the top of the screen by scrolling through the options and selecting the prefered statistic.   </p> 
+          
+        <p class ="w3-text-grey"> When clicking the polygon a relevant socio-economical or demographical statistic will be shown based on the user preference at the side of the map. These statistics will appear in the form of donut charts, pie charts or bar charts. There is also a compare function that can be toggled when using the 'compare mode' at the top of the screen. Two districts or neighbourhoods can be chosen to compare their statistics with eachother using this function. </p>
+    </div>
+  </div>
+</div>
+
+
 </body>
 </html>

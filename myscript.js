@@ -1,6 +1,6 @@
 
 const mapWidth = 960;
-const mapHeight = 500;
+const mapHeight = 580;
 let active = d3.select(null);
 let maxes;
 let mins;
@@ -11,9 +11,58 @@ let scaleY;
 let level = "city";
 let parent;
 let child;
+let current_index = "population_2017";
+let colorScaleIndex;
+let chosenStat;
+let compareMode = false;
+let clickedPolygons = [];
+let current_data_districts = [];
+let svg;
+let d3projection;
+var map;
 
+function initMap(data,otherData) {
+    // mapboxgl.accessToken = "pk.eyJ1IjoibWVueTIyIiwiYSI6ImNqdDV3czZnMTAwdDQ0NXFtNnFmYWpta3cifQ.mhbITNq8e2dq1WzKdDqETg"
+    // var style1 = 'mapbox://styles/meny22/cjt5x58qx1ckg1fqwuiefewht'
+    // var style2 = "mapbox://styles/meny22/cjt5y536g23b31fparcfxvlrx"
+    // var style3 = "mapbox://styles/meny22/cjt8liq6t7asj1fmv11njf6pk"
+    // map = new mapboxgl.Map({
+    //     container:'map',
+    //     style: style1,
+    //     center:[4.9036,52.3580],
+    //     zoom: 10.5,
+    //     interactive:false
+    // })
+    // map.scrollZoom.disable()
+    // map.dragPan.disable()
+    // var container = map.getCanvasContainer()
+    svg = d3.select("#map").append("svg")
+        .attr("width", mapWidth)
+        .attr("height", mapHeight)
+    // getD3()
+    d3projection = d3.geoMercator().scale(100000)
+    .center([4.9,52.36])
+    .translate([mapWidth / 2, mapHeight / 2])
+    
+    var path = d3.geoPath().projection(d3projection);
+    d3.json('buurt_2017.geojson').then(function(mapData) {
+        var features = mapData.features;
+        svg.selectAll("path").data(features)
+            .enter().append('path')
+                    .attr('d', path)
+                    .attr("fill","gray")
+        initializeChart(data,otherData)
+    })
+}
 
+function getD3() {
+      var bbox = document.body.getBoundingClientRect();
 
+      d3projection = d3.geoMercator()
+        .center([center.lng, center.lat])
+        .translate([bbox.width/2, bbox.height/2])
+        .scale(scale);
+}
 
 function parsePolygon(polygon){
     polygon = polygon.replace("POLYGON((", "");
@@ -126,55 +175,135 @@ function othersBack(){
     }
 }
 
-function clicked(d) {
-    if(!(level === "district" && whatIsClicked(d) === "district") &&
-        !(level === "neighbourhood" && whatIsClicked(d) === "district")){
-        //Zooms in on center of polygon
-        if (active.node() === this){
-            return reset();
-        } else {
-            if (whatIsClicked(d) === "district"){
-                child = d.neighbourhoods;
-                parent = "#"+d.district;
-                d3.select("#"+d.district)
-                    .transition()
-                    .duration(50)
-                    .style("opacity", 0);
-                drawHoodPolygons(d);
-            }
+function toggleCompare(){
+    compareMode = document.getElementById("compareToggle").checked;
+    if (!compareMode){
+        for (let polygon of clickedPolygons){
+            d3.select("#"+polygon.area)
+                .transition()
+                .duration(50)
+                .style("stroke", polygon.stroke)
+                .style("stroke-width", polygon.stroke_width);
         }
-
-        othersGone(d);
-        active.classed("active", false);
-        active = d3.select(this).classed("active", true);
-        let element = active.node();
-
-        let bbox = element.getBBox();
-        let dx = bbox.width,
-            dy = bbox.height,
-            x = (bbox.x+(bbox.x+bbox.width)) / 2,
-            y = (bbox.y+(bbox.y+bbox.height)) / 2,
-            scale = .6 / Math.max(dx / mapWidth, dy / mapHeight),
-            translate = [mapWidth/ 2 - x, mapHeight/ 2 - y];
-        d3.select("svg")
-            .transition()
-            .duration(750)
-            .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
-
-    }else{
-        return reset();
+        clickedPolygons = [];
     }
-    level = whatIsClicked(d);
 }
 
+function checkDuplicates(d){
+    for(let polygon of clickedPolygons){
+        if(polygon.area === d.district || polygon.area === d.neighbourhood){
+            return true;
+        }
+    } return false;
+}
+
+function addToClicked(d){
+    if (clickedPolygons.length === 2){
+        d3.select("#"+clickedPolygons[0].area)
+            .transition()
+            .duration(50)
+            .style("stroke", clickedPolygons[0].stroke)
+            .style("stroke-width", clickedPolygons[0].stroke_width);
+        clickedPolygons.shift();
+    }
+    if (level === "city"){
+        clickedPolygons.push({"area": d.district,
+            "stroke": d3.select("#"+d.district).attr("stroke"),
+            "stroke_width": d3.select("#"+d.district).attr("stroke-width")});
+        d3.select("#"+d.district)
+            .transition()
+            .duration(50)
+            .style("stroke", "black")
+            .style("stroke-width", "4");
+    } else if(level === "district") {
+        clickedPolygons.push({"area": d.neighbourhood,
+            "stroke": d3.select("#"+d.neighbourhood).attr("stroke"),
+            "stroke_width": d3.select("#"+d.neighbourhood).attr("stroke-width")});
+        d3.select("#"+d.neighbourhood)
+            .transition()
+            .duration(50)
+            .style("stroke", "black")
+            .style("stroke-width", "4");
+    }
+}
+
+function addToCompare(d){
+    if(clickedPolygons.length === 0) {
+        addToClicked(d);
+    } else {
+        if(!checkDuplicates(d)){
+            addToClicked(d);
+        }
+    }
+}
+
+function clicked(d) {
+
+    if (!compareMode){
+        if(!(level === "district" && whatIsClicked(d) === "district") &&
+            !(level === "neighbourhood" && whatIsClicked(d) === "district")){
+
+
+
+            //Zooms in on center of polygon
+            if (active.node() === this){
+                clear_donut();
+                d3.select("#name").text("");
+                return reset();
+            } else {
+                let original_name = "";
+                if (whatIsClicked(d) === "district"){
+                    child = d.neighbourhoods;
+                    parent = "#"+d.district;
+                    d3.select("#"+d.district)
+                        .transition()
+                        .duration(50)
+                        .style("opacity", 0);
+                    drawHoodPolygons(d);
+                    original_name = replaceCharsBack(d.district)
+                } else {
+                    original_name = replaceCharsBack(d.neighbourhood)
+
+                }
+                showDonutDistrict(original_name);
+                d3.select("#name").text(original_name);
+            }
+
+            othersGone(d);
+            active.classed("active", false);
+            active = d3.select(this).classed("active", true);
+            let element = active.node();
+
+            let bbox = element.getBBox();
+            let dx = bbox.width,
+                dy = bbox.height,
+                x = (bbox.x+(bbox.x+bbox.width)) / 2,
+                y = (bbox.y+(bbox.y+bbox.height)) / 2,
+                scale = .6 / Math.max(dx / mapWidth, dy / mapHeight),
+                translate = [mapWidth/ 2 - x, mapHeight/ 2 - y];
+            d3.select("svg")
+                .transition()
+                .duration(750)
+                .attr("transform", "scale(" + scale + ")translate(" + translate + ")");
+
+        }else{
+            clear_donut();
+            d3.select("#name").text("");
+            return reset();
+        }
+        level = whatIsClicked(d);
+    } else {
+        addToCompare(d);
+    }
+}
 
 function drawHoodPolygons(d){
-    vis.selectAll("svg")
+    svg.append("svg").selectAll("polygon")
         .data(d.neighbourhoods)
         .enter().append("polygon")
         .attr("id", function(d) { return d.neighbourhood;})
         .attr("points", function(d) {
-            return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
+            return d.polygon.map(function(d) { return d3projection([d.long,d.lat])[0] + "," + d3projection([d.long,d.lat])[1];}).join(" ");})
         .attr("stroke", "white")
         .attr("stroke-width", 0.4)
         .attr("opacity", 0.7)
@@ -201,16 +330,16 @@ function drawHoodPolygons(d){
 }
 
 function drawDistrictPolygons(data){
-    vis.selectAll("svg")
+    svg.append("svg").selectAll("polygon")
         .data(data)
         .enter().append("polygon")
         .attr("id", function(d) { return d.district;})
         .attr("points", function(d) {
-            return d.polygon.map(function(d) { return [scaleX(d.long),scaleY(d.lat)].join(","); }).join(" ");})
+            return d.polygon.map(function(d) { return d3projection([d.long,d.lat])[0] + "," + d3projection([d.long,d.lat])[1];}).join(" ");})
         .attr("stroke", "white")
         .attr("stroke-width", 0.7)
         .attr("opacity", 0.7)
-        .attr("fill", "blue")
+        .attr("fill", function(d) { return getColorForDistrict(d.district);})
         .on("mouseover", function(d) {
             if(level === "city"){
                 d3.select(this)
@@ -236,13 +365,18 @@ function replaceChars(name){
     replace(/\./g, "_dot_");
 }
 
+
+function replaceCharsBack(name){
+    return name.replace(/_slash_/g,"/").replace(/_dot_/g,".").replace(/_/g," ")
+}
+
+
 function noSameName(district_name, hood_name){
     if(district_name === hood_name){
         return replaceChars(hood_name+"_street_");
     }
     return replaceChars(hood_name);
 }
-
 
 function createDictionary(data, otherData){
     let myData = get_all_by_district(data);
@@ -264,14 +398,25 @@ function createDictionary(data, otherData){
 }
 
 
-
+/*$(function(){
+    for(let box of boxes){
+    box.addEventListener("click", function(event){
+        chosenStat = getValue(event);
+    });
+   }
+   });*/
 
 
 function initializeChart(data, otherData){
-
     myData =createDictionary(data, otherData);
+
     maxes = getAllMaxes(myData);
     mins = getAllMins(myData);
+
+
+   
+   initializeColorScales();    
+    
 
     scaleX = d3.scaleLinear()
         .domain([mins["long"], maxes["long"]])
@@ -281,22 +426,67 @@ function initializeChart(data, otherData){
         .domain([mins["lat"], maxes["lat"]])
         .range([mapHeight,0]);
 
-    vis = d3.select("body").append("svg")
-        .attr("width", mapWidth)
-        .attr("height", mapHeight);
+    // vis = d3.select("#map").append("svg")
+    //     .attr("width", mapWidth)
+    //     .attr("height", mapHeight)
+    //     .attr("class","zoomable");
 
     drawDistrictPolygons(myData);
 }
 
-d3.csv("ams_stats_districts.csv").then(function(data) {
-    d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
-        initializeChart(data, other_data);
+function getColorForDistrict(district) {
+    let district_info = get_for_district(current_data_districts,replaceCharsBack(district));
+    if(district_info != undefined) {
+        if(current_index in district_info)
+            return colorScaleIndex(district_info[current_index])
+    } else {
+        //console.log(district)
+    }
+}
 
+//const boxes = document.getElementsByClassName("box");
+
+
+//add the click listeners
+
+
+
+
+function initializeColorScales() {
+    current_index = chosenStat;
+    let max = get_maxes_for_index(current_data_districts,current_index);
+    console.log("max:" +max)
+    colorScaleIndex = getColorScale(max)
+}
+
+d3.csv("data_merge_only_safety.csv").then(function(data) {
+current_data_districts = data;
+d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
+        //initializeChart(data, other_data);
+        initMap(data,other_data)
+                    });
+     });
+
+$(function(){
+        for(let box of boxes){
+            box.addEventListener("click", function(event){
+                if (chosenStat != getValue(event)) {
+                chosenStat = getValue(event);
+                
+                
+                d3.csv("data_merge_only_safety.csv").then(function(data) {
+            current_data_districts = data;
+            d3.csv("ams_stats_neighbourhoods.csv").then(function(other_data) {
+        //initializeChart(data, other_data);
+        d3.select("svg").remove();        
+        initMap(data,other_data)
+                    });
+   });
+    
+                }
     });
+}
 });
-
-
-
 
 
 

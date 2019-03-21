@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <link rel="stylesheet" type="text/css" href="styling.css">
+    <link rel="stylesheet" type="text/css" href="ethnicity_donut_chart_t.css">
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
+</head>
+<body>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+<!--<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>-->
+<script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+<script src="data_functions/data_handler.js"> </script>
+<script src="myscript.js"> </script>
+<script src="colorscaling.js"></script>
+<script src="scroll.js"></script>
+<script src="ethnicity_donut_chart_t.js"></script>
+
+
+    
+<nav id="sub" class="clearfix">
+<div id="lefty">&lt;</div>
+<div class="container_element">
+    <div class="inner_container">
+    <a href="#"><div class="box">Choose your statistic by scrolling through this menu!</div></a>
+    <a href="#"><div class="box" data-value="crime_index_2017">Crime index</div></a>
+    <a href="#"><div class="box" data-value="decay_2017"> Decay</div></a>
+    <a href="#"><div class="box" data-value="fear_of_crime_2017">Fear of crime</div></a>
+    <a href="#"><div class="box" data-value="high_impact_crime_2017">High impact crime</div></a>
+    <a href="#"><div class="box" data-value="avoidance_2017">Avoidance</div></a>
+    <a href="#"><div class="box" data-value="high_volume_crime_2017">High volume crime</div></a>
+    <a href="#"><div class="box" data-value="nuisance_2017">Nuisance</div></a>
+    <a href="#"><div class="box" data-value="population_living_in_care_home_2018">Population living in a care home</div></a>
+    <a href="#"><div class="box" data-value="deaths_2017">Deaths</div></a>
+    <a href="#"><div class="box" data-value="people_moving_away_2017">People moving away</div></a>
+    <a href="#"><div class="box" data-value="single_parent_families_2018">Single parent families</div></a>    
+    </div>
+</div>
+<div id="righty">&gt;</div>
+</nav>
+    
+    
+    
+<!--<div class="dropdown">
+  <button class="dropbtn">Choose crime stat for map</button>
+  <div class ="dropdown-content">
+    <a id="crime_index_2017">Crime index</a>
+    <a id="decay_2017">Decay</a>
+    <a id="fear_of_crime_2017">Fear of crime</a>
+    <a id="high_impact_crime_2017">High impact crime</a>
+    <a id="avoidance_2017">Avoidance</a>
+    <a id="high_volume_crime_2017">High volume crime</a>
+    <a id="nuisance_2017">Nuisance</a>
+    <a id="safety_index_2017">Safety index</a>  
+  </div>
+    </div>
+<div class="dropdown2">    
+  <button class="dropbtn2">Choose socio-economical stat for map</button>
+  <div class ="dropdown-content2">
+    <a id="migrants">Migrants</a>
+    <a id="single_household">Single parent households</a>
+    <a id="deaths">Deaths</a>
+    <a id="moving_away">People moving away</a>
+    <a id="housing_stock">Housing stock</a>
+    <a id="potential_labour">Potential labour</a>
+    <a id="welfare">People with welfare</a>
+    <a id="working">People working</a>  
+  </div>  
+</div>
+    -->
+
+
+    
+<h4 id= "compare mode">compare mode:</h4>    
+<label class="switch">
+ 
+  <input id="compareToggle" type="checkbox" onclick="toggleCompare()">
+  <span class="slider round"></span>
+</label>
+    
+<h4>displayed on map:</h4> 
+<h4 id= "currently_displayed">none</h4>         
+    
+<h1 id="name"></h1>
+<div id="elements">
+  <g id="map"></g>
+  <div id="chart"></div> 
+</div>
+    
+</body>
+</html>
