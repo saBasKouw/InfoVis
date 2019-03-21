@@ -319,8 +319,8 @@ d3.csv("concat_ams_safety_index_district.csv", function (d) {
 	}
 
 	d3.select('body').append('svg').attr('class', 'chart')
-		.attr('width', '1500')
-		.attr('height', '1000');
+		.attr('width', '700')
+		.attr('height', '700');
 	d3.select('body').append('input').attr('type', 'checkbox').attr('class', "sort")
 
 	function barchart(data) {
@@ -334,8 +334,8 @@ d3.csv("concat_ams_safety_index_district.csv", function (d) {
 
 		var svg = d3.select('body').select(".chart"),
 			margin = { top: 25, bottom: 10, left: 25, right: 25 },
-			width = 1500 - margin.left - margin.right,
-			height = 800 - margin.top - margin.bottom;
+			width = 500 - margin.left - margin.right,
+			height = 300 - margin.top - margin.bottom;
 
 		var x = d3.scaleBand()
 			.range([margin.left, width - margin.right])
