@@ -2,10 +2,9 @@ var width = 500,
     height = 150,
     cornerRadius = 3,
     padAngle = 0.015,
-    currentindex = 0;
+    current_id = 0;
 
-
-var donut = donutChart()
+var donut_ethnicity = donutChart_Ethnicity()
     .width(width)
     .height(height)
     .cornerRadius(cornerRadius) // sets how rounded the corners are on each slice
@@ -13,11 +12,11 @@ var donut = donutChart()
     .variable('Percentage')
     .category('key');
 
-function donutChart() {
+function donutChart_Ethnicity() {
     var width,
         height,
         margin = {top: 10, right: 10, bottom: 10, left: 10},
-        colour = d3.scaleOrdinal(d3.schemeCategory10), // colour scheme
+        colour = d3.scaleOrdinal(d3.schemeBlues[5]), // colour scheme
         variable, // value in data that will dictate proportions on chart
         category, // compare data by
         padAngle, // effectively dictates the gap between slices
@@ -68,7 +67,7 @@ function donutChart() {
             var svg = selection.append('svg')
                 .attr('width', width + margin.left + margin.right)
                 .attr('height', height + margin.top + margin.bottom)
-                .attr('id',currentindex)
+                .attr("id",current_id)
               .append('g')
                 .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
                 // ===========================================================================================
@@ -80,13 +79,16 @@ function donutChart() {
             svg.append('g').attr('class', 'lines');
             var title = svg.append("text")
                   .attr("x", 2)
-                  .attr("y", -50)
+                  .attr("y", -20)
                   .style("text-anchor", "middle");
             // ===========================================================================================
 
-            var title_main_title = title.text("Ethnicity")
+            var title_text = title.text("Ethnicity")
                         .attr('font-weight', 'bold')
+                        .style("font-size", "15px")
                         .merge(title);
+
+            console.log(title.text);
 
               title.exit()
                   .transition()
@@ -127,9 +129,12 @@ function donutChart() {
                 .merge(label);
             label_elements
                 .html(function(d) {
+                    //console.log(d.data[variable])
+                    if (percentFormat(d.data[variable]) != 0.00) return d.data[category] + ': <tspan>' + percentFormat(d.data[variable]) + '</tspan>';
                     // add "key: value" for given category. Number inside tspan is bolded in stylesheet.
-                    return d.data[category] + ': <tspan>' + percentFormat(d.data[variable]) + '</tspan>';
+                  //  return d.data[category] + ': <tspan>' + percentFormat(d.data[variable]) + '</tspan>';
                 })
+                .style("font-size", "12px")
                 .attr('transform', function(d) {
 
                     // effectively computes the centre of the slice.
@@ -176,11 +181,11 @@ function donutChart() {
             d3.selectAll('.labelName text, .slices path').call(toolTip);
             // ===========================================================================================
             // FUNCTION TO UPDATE CHART
-            updateData = function(new_data) {
+            updateData = function(new_data, found_id) {
 
-                var updatePath = d3.select('.slices').selectAll('path');
-                var updateLines = d3.select('.lines').selectAll('polyline');
-                var updateLabels = d3.select('.labelName').selectAll('text');
+                var updatePath = d3.select('svg:nth-child('+found_id+') .slices').selectAll('path');
+                var updateLines = d3.select('svg:nth-child('+found_id+') .lines').selectAll('polyline');
+                var updateLabels = d3.select('svg:nth-child('+found_id+') .labelName').selectAll('text');
 
                 var data0 = path.data(), // store the current data before updating to the new
                     data1 = pie(new_data);
@@ -239,7 +244,7 @@ function donutChart() {
                 updateLabels.html(updateLabelText); // update the label text
 
                 // add tooltip to mouse events on slices and labels
-                d3.selectAll('.labelName text, .slices path').call(toolTip);
+                d3.selectAll('svg:nth-child('+found_id+') .labelName text, svg:nth-child('+found_id+') .slices path').call(toolTip);
 
             };
             // ===========================================================================================
@@ -261,14 +266,17 @@ function donutChart() {
                      .attr("d", arcOver)
                      .attr("stroke-width",1);
 
-                    svg.append('text')
+                    var found_id = $(this).closest("svg").attr("id")
+
+                    d3.select("[id='"+found_id+"'] g").append('text')
                         .attr('class', 'toolCircle')
-                        .attr('dy', -15) // hard-coded. can adjust this to adjust text vertical alignment in tooltip
+                        .attr('dy', 0) // hard-coded. can adjust this to adjust text vertical alignment in tooltip
                         .html(toolTipHTML(data)) // add text to the circle.
-                        .style('font-size', '.9em')
+                        .style('font-size', '.7em')
+                      //  .style("font-size", "15px")
                         .style('text-anchor', 'middle'); // centres text in tooltip
 
-                    svg.append('circle')
+                    d3.select("[id='"+found_id+"'] g").append('circle')
                         .attr('class', 'toolCircle')
                         .attr('r', radius * 0.55) // radius of tooltip circle
                         .style('fill', colour(data.data[category])) // colour based on category mouse is over
@@ -281,18 +289,22 @@ function donutChart() {
                           .attr("d", arc)
                           .attr("stroke","none");
 
+                      d3.selectAll('.toolCircle').remove();
+
                         if (data.data[category] == "Other Non Western" ||
                             data.data[category] == "Surinamese"  ||
                             data.data[category] == "Antillean"  ||
                             data.data[category] == "Turkish"  ||
                             data.data[category] == "Maroccan") {
-                        console.log(d3.select(this))
-                        updateData(init_data);
+                        var found_id = parseInt($(this).closest("svg").attr("id"))
+                        updateData(init_data,found_id);
 
-                        var title_main_title = title.text("Ethnicity")
+                        var title_text = title.text("Ethnicity")
                                     .attr('font-weight', 'bold')
+                                    .style("font-size", "15px")
                                     .merge(title);
 
+                        console.log(title.text());
                           title.exit()
                               .transition()
                               .duration(5)
@@ -302,11 +314,14 @@ function donutChart() {
 
                         if (data.data[category] == "Total Non Western") {
                           var new_data = data.data['subgroups']
-                        updateData(new_data);
+                          var found_id = parseInt($(this).closest("svg").attr("id"))
+                        updateData(new_data,found_id);
 
+                      d3.selectAll('.toolCircle').remove();
                     //title
-                      var title_text = title.text("Subgroups Non Western")
+                      var title_text = title.text("Non Western")
                                   .attr('font-weight', 'bold')
+                                  .style("font-size", "14px")
                                   .merge(title);
 
                         title.exit()
@@ -347,8 +362,10 @@ function donutChart() {
 
                     // leave off 'dy' attr for first tspan so the 'dy' attr on text element works. The 'dy' attr on
                     // tspan effectively imitates a line break.
-                    if (i === 0) tip += '<tspan x="0">' + key + ': ' + value + '</tspan>';
-                    else tip += '<tspan x="0" dy="1.2em">' + key + ': ' + value + '</tspan>';
+                //    if (i === 0) tip += '<tspan x="0">' + key + ': ' + value + '</tspan>';
+                //    else tip += '<tspan x="0" dy="1.2em">' + key + ': ' + value + '</tspan>';
+                    if (i === 0) tip += '<tspan x="0" y="0">' + value + '</tspan>';
+                    else tip += '<tspan x="0" dy="1.2em">' + value + '</tspan>';
                     i++;
                 }
 
@@ -357,24 +374,19 @@ function donutChart() {
 
             // calculate the points for the polyline to pass through
              function calculatePoints(d) {
-                 // see label transform function for explanations of these three lines.
                  var pos = outerArc.centroid(d);
                  pos[0] = radius * 0.95 * (midAngle(d) < Math.PI ? 1 : -1);
-                 return [arc.centroid(d), outerArc.centroid(d), pos]
+                 if (d.data[variable] != '0') return [arc.centroid(d), outerArc.centroid(d), pos]
              }
 
              function labelTransform(d) {
-                 // effectively computes the centre of the slice.
-                 // see https://github.com/d3/d3-shape/blob/master/README.md#arc_centroid
                  var pos = outerArc.centroid(d);
-
-                 // changes the point to be on left or right depending on where label is.
                  pos[0] = radius * 0.95 * (midAngle(d) < Math.PI ? 1 : -1);
                  return 'translate(' + pos + ')';
              }
 
              function updateLabelText(d) {
-                 return d.data[category] + ': <tspan>' + percentFormat(d.data[variable]) + '</tspan>';
+               if (d.data[variable] != '0') return d.data[category] + ': <tspan>' + percentFormat(d.data[variable]) + '</tspan>';
              }
 
              // function that calculates transition path for label and also it's text anchoring
@@ -526,7 +538,7 @@ function donutChart() {
 function showDonutDistrict(district_name,replace) {
 if(replace) {
     d3.select("#chart").selectAll("*").remove();
-    currentindex = 0
+    current_id = 0
 }
 d3.csv('ams_stats_districts.csv').then(function(data) {
 //  if (error) throw error;
@@ -587,7 +599,7 @@ data.forEach(function(d){
   if(one_district == undefined){
     showDonutNeighbourhood(district_name);
     return;
-  }      
+  }
 
 
    var nested_data = d3.nest()
@@ -635,7 +647,7 @@ data.forEach(function(d){
 
      chart_elements
                  .datum(nested_data)
-                 .call(donut);
+                 .call(donut_ethnicity);
 
     chart_area.exit()
         .attr("class", "exit")
@@ -645,7 +657,7 @@ data.forEach(function(d){
 
 
        });
-    currentindex = currentindex+1
+    current_id = current_id+1
      }
 
 function showDonutNeighbourhood(neighbourhood_name) {
@@ -749,7 +761,7 @@ function showDonutNeighbourhood(neighbourhood_name) {
 
          chart_elements
                      .datum(nested_data)
-                     .call(donut);
+                     .call(donut_ethnicity);
 
         chart_area.exit()
             .attr("class", "exit")

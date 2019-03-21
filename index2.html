@@ -16,7 +16,10 @@
 <script src="myscript.js"> </script>
 <script src="colorscaling.js"></script>
 <script src="scroll.js"></script>
-<script src="ethnicity_donut_chart_t.js"></script>
+<script src="ethnicity_donut_chart_n.js"></script>
+<script src="age_donut_n.js"></script>
+<script src="living_arrangement_n.js"></script>
+
 
 
     
@@ -73,7 +76,7 @@
 
 
     
-<h4 id= "compare mode">compare mode:</h4>    
+<h4 id= "compare_mode">compare mode:</h4>    
 <label class="switch">
  
   <input id="compareToggle" type="checkbox" onclick="toggleCompare()">
@@ -81,12 +84,18 @@
 </label>
     
 <h4>displayed on map:</h4> 
-<h4 id= "currently_displayed">none</h4>         
+<h4 id= "currently_displayed"></h4>   
+<h4 id="currently_displayed2"></h4>      
     
 <h1 id="name"></h1>
 <div id="elements">
   <g id="map"></g>
   <div id="chart"></div> 
+  <select id="select_id" onchange="changeDonut(true)">
+    <option value="Ethnicity">Ethnicity</option>
+    <option value="Living Arrangement">Living arrangement</option>
+    <option value="Age">Age groups</option>
+  </select>
 </div>
     
 </body>

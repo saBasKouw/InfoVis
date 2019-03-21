@@ -20,6 +20,8 @@ let current_data_districts = [];
 let svg;
 let d3projection;
 var map;
+var current_district_id;
+var current_stat_chart = "Age";
 
 function initMap(data,otherData) {
     // mapboxgl.accessToken = "pk.eyJ1IjoibWVueTIyIiwiYSI6ImNqdDV3czZnMTAwdDQ0NXFtNnFmYWpta3cifQ.mhbITNq8e2dq1WzKdDqETg"
@@ -41,7 +43,7 @@ function initMap(data,otherData) {
         .attr("height", mapHeight)
     // getD3()
     d3projection = d3.geoMercator().scale(100000)
-    .center([4.9,52.36])
+    .center([4.95,52.36])
     .translate([mapWidth / 2, mapHeight / 2])
     
     var path = d3.geoPath().projection(d3projection);
@@ -144,6 +146,15 @@ function reset() {
 
 }
 
+function changeDonut(replace) {
+  var stat = document.getElementById("select_id").value;
+  if(current_district_id != undefined) {
+      if (stat == "Ethnicity") showDonutDistrict(current_district_id,replace);
+      if (stat == "Living Arrangement") showDonut_Living_District(current_district_id,replace);
+      if (stat == "Age") showDonut_Age_District(current_district_id,replace);
+    }
+}
+
 function othersGone(d){
     if(level === "city"){
         for(let poly of myData){
@@ -185,8 +196,16 @@ function toggleCompare(){
                 .style("stroke", polygon.stroke)
                 .style("stroke-width", polygon.stroke_width);
         }
+        d3.select("#currently_displayed").text("");
+        d3.select("#currently_displayed2").text("");
         clickedPolygons = [];
+        d3.select("#select_id").attr("disabled",null)
+        console.log("disabling")
+    } else {
+        d3.select("#select_id").attr("disabled","true")
     }
+    clear_donut()
+    current_district_id = undefined
 }
 
 function checkDuplicates(d){
@@ -198,14 +217,25 @@ function checkDuplicates(d){
 }
 
 function addToClicked(d){
+    var shouldReplace = false;
     if (clickedPolygons.length === 2){
         d3.select("#"+clickedPolygons[0].area)
             .transition()
             .duration(50)
             .style("stroke", clickedPolygons[0].stroke)
             .style("stroke-width", clickedPolygons[0].stroke_width);
-        clickedPolygons.shift();
+        d3.select("#"+clickedPolygons[1].area)
+        .transition()
+        .duration(50)
+        .style("stroke", clickedPolygons[1].stroke)
+        .style("stroke-width", clickedPolygons[1].stroke_width);
+        clickedPolygons = []
+        shouldReplace = true;
+        d3.select("#currently_displayed").text("");
+        d3.select("#currently_displayed2").text("");
+        current_district_id = undefined
     }
+    var original_name = ""
     if (level === "city"){
         clickedPolygons.push({"area": d.district,
             "stroke": d3.select("#"+d.district).attr("stroke"),
@@ -215,6 +245,7 @@ function addToClicked(d){
             .duration(50)
             .style("stroke", "black")
             .style("stroke-width", "4");
+        original_name = replaceCharsBack(d.district)
     } else if(level === "district") {
         clickedPolygons.push({"area": d.neighbourhood,
             "stroke": d3.select("#"+d.neighbourhood).attr("stroke"),
@@ -224,7 +255,18 @@ function addToClicked(d){
             .duration(50)
             .style("stroke", "black")
             .style("stroke-width", "4");
+        original_name = replaceCharsBack(d.neighbourhood)
     }
+    if(current_district_id != undefined) {
+         d3.select("#currently_displayed2").text(original_name);
+    } else {
+         d3.select("#currently_displayed").text(original_name);
+    }
+    current_district_id = original_name
+    console.log(current_district_id)
+    // showDonutDistrict(original_name,shouldReplace)
+    changeDonut(shouldReplace)
+
 }
 
 function addToCompare(d){
@@ -248,7 +290,8 @@ function clicked(d) {
             //Zooms in on center of polygon
             if (active.node() === this){
                 clear_donut();
-                d3.select("#name").text("");
+                d3.select("#currently_displayed").text("");
+                current_district_id = undefined
                 return reset();
             } else {
                 let original_name = "";
@@ -265,8 +308,10 @@ function clicked(d) {
                     original_name = replaceCharsBack(d.neighbourhood)
 
                 }
-                showDonutDistrict(original_name);
-                d3.select("#name").text(original_name);
+                current_district_id = original_name
+                changeDonut(true)
+                //showDonutDistrict(original_name,true);
+                d3.select("#currently_displayed").text(original_name);
             }
 
             othersGone(d);
@@ -288,7 +333,8 @@ function clicked(d) {
 
         }else{
             clear_donut();
-            d3.select("#name").text("");
+            d3.select("#currently_displayed").text("");
+            current_district_id = undefined
             return reset();
         }
         level = whatIsClicked(d);

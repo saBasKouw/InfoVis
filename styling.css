@@ -60,6 +60,8 @@ nav#sub {
   box-shadow: 0 4px 6px 0 #BFBFBF;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#004173', endColorstr='#014f8d',GradientType=0 );
   webkit-box-shadow: 0 4px 6px 0 #BFBFBF;
+  z-index: 3;
+  position: absolute;
 }
 
 
@@ -72,15 +74,35 @@ h4 {
 
 
 #currently_displayed{
+  position: relative;
+  left:740px;
+  top:80px;
+  z-index: 5
+}
+#currently_displayed2{
+  position: relative;
+  left:620px;
+  top:100px;
+  z-index: 5
+}
+
+#compare_mode {
+  position: relative;
+  left:830px;
+  top:140px;
+  z-index: 3
 }
 
 
 /* The switch - the box around the slider */
 .switch {
-  position: relative;
+  position: absolute;
   display: inline-block;
   width: 60px;
   height: 34px;
+  left:960px;
+  top:130px;
+  z-index: 3;
 }
 
 /* Hide default HTML checkbox */
@@ -101,6 +123,7 @@ h4 {
   background-color: #ccc;
   -webkit-transition: .4s;
   transition: .4s;
+  z-index: 3;
 }
 
 .slider:before {
@@ -136,4 +159,10 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+#select_id {
+  position: relative;
+  left:1080px;
+  top:115px;
 }
